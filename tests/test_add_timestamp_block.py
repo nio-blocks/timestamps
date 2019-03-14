@@ -78,7 +78,7 @@ class TestAddTimestamp(NIOBlockTestCase):
         self.assert_num_signals_notified(1)
 
     def test_advanced_configuration(self):
-        """ Signal attribute, microsecond, and enrichment options."""
+        """ Signal attribute, millisecond, and enrichment options."""
         format = '%Y-%m-%dT%H:%M:%SZ'
         blk = AddTimestamp()
         config = {
