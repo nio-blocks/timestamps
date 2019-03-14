@@ -3,8 +3,8 @@ from tzlocal import get_localzone
 from nio import Block
 from nio.block.mixins import EnrichSignals
 from nio.block.mixins.enrich.enrich_signals import EnrichProperties
-from nio.properties import BoolProperty, ObjectProperty, PropertyHolder, \
-    StringProperty, VersionProperty
+from nio.properties import BoolProperty, ObjectProperty, StringProperty, \
+    VersionProperty
 
 
 class CustomEnrichProperties(EnrichProperties):
