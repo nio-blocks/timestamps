@@ -1,7 +1,12 @@
 {
-  "namespace/BlockName": {
+  "nio/AddTimestamp": {
     "language": "Python",
-    "version": "0.0.1",
-    "reference": "github.com/<organization>/<repo>@v0.0.1"
+    "url": "git://github.com/tyoungNIO/timestamps.git",
+    "from_python": "add_timestamp_block.AddTimestamp"
+  },
+  "nio/ElapsedTimestamp": {
+    "language": "Python",
+    "url": "git://github.com/tyoungNIO/timestamps.git",
+    "from_python": "elapsed_timestamp_block.ElapsedTimestamp"
   }
 }
