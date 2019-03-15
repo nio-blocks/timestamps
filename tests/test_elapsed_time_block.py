@@ -1,5 +1,4 @@
-import datetime
-from unittest.mock import patch
+from unittest.mock import ANY, patch
 from nio.block.terminals import DEFAULT_TERMINAL
 from nio.signal.base import Signal
 from nio.testing.block_test_case import NIOBlockTestCase
@@ -8,124 +7,77 @@ from ..elapsed_time_block import ElapsedTime
 
 class TestElapsedTime(NIOBlockTestCase):
 
-    # define a timestamp in the past
-    dummy_timestamp = '1970-01-01T00:00:00.000000Z'
-    dummy_timestamp_obj = datetime.datetime.strptime(
-        dummy_timestamp, '%Y-%m-%dT%H:%M:%S.%fZ')
-    # define a value for the current time during testing
-    mock_current_time = dummy_timestamp_obj + datetime.timedelta(seconds=3.14)
+    # define timestamps with interval 42 minutes and Pi seconds
+    timestamp_a = '1984-05-03T05:45:00+0545'  # midight UTC in Nepal
+    timestamp_b = '1984-05-03T00:42:03.142Z'  # UTC, with optional milliseconds
 
-    @patch('datetime.datetime')
-    def test_local_timestamp(self, mock_datetime):
-        """ The time elapsed since an input timestamp is returned."""
-        mock_datetime.now.return_value = self.mock_current_time
-        mock_datetime.strptime.return_value = self.dummy_timestamp_obj
-        delta = (self.mock_current_time - self.dummy_timestamp_obj)
-        # all values are expected as floats with no config
-        elapsed = dict(days=delta.days,
-                       hours=delta.total_seconds() / 60 ** 2,
-                       minutes=delta.total_seconds() / 60,
-                       seconds=delta.total_seconds())
-
+    def test_default_config(self):
+        """ Two timestamps in an incoming signal are compared."""
         blk = ElapsedTime()
-        self.configure_block(blk, {})
-        blk.start()
-        blk.process_signals([Signal({'timestamp': self.dummy_timestamp})])
-        blk.stop()
-        # current time is checked once per signal list
-        mock_datetime.now.assert_called_once_with()
-        self.assert_num_signals_notified(1)
-        self.assertDictEqual(
-            self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
-            {'timestamp': self.dummy_timestamp, 'elapsed': elapsed})
+        config = {
+            'timestamp_a': '{{ $timestamp_a }}',
+            'timestamp_b': '{{ $timestamp_b }}',
+        }
+        self.configure_block(blk, config)
 
-    @patch('datetime.datetime')
-    def test_utc_timestamp(self, mock_datetime):
-        """ UTC time is used for comparison instead of local time."""
+        # process a list of signals
+        blk.start()
+        blk.process_signals([
+            Signal({
+                'timestamp_a': self.timestamp_a,
+                'timestamp_b': self.timestamp_b,
+            }),
+        ])
+        blk.stop()
+
+        # compare output to known interval of test timestamps
+        seconds = (42 * 60) + 3.142
+        minutes = seconds / 60
+        hours = minutes / 60
+        days = hours / 24
+        self.assert_last_signal_list_notified([
+            Signal({
+                'timestamp_a': self.timestamp_a,
+                'timestamp_b': self.timestamp_b,
+                'timedelta': {
+                    'days': days,
+                    'hours': hours,
+                    'minutes': minutes,
+                    'seconds': seconds,
+                },
+            }),
+        ])
+
+    def test_advanced_configuration(self):
+        """ Signal attribute and enrichment options."""
         blk = ElapsedTime()
-        self.configure_block(blk, {'utc': True})
+        config = {
+            'enrich': {
+                'exclude_existing': True,
+            },
+            'output_attr': '{{ $custom_attr }}',
+            'timestamp_a': self.timestamp_a,
+            'timestamp_b': self.timestamp_b,
+        }
+        self.configure_block(blk, config)
+
+        # process a list of signals
         blk.start()
-        blk.process_signals([Signal({'timestamp': self.dummy_timestamp})])
+        blk.process_signals([
+            Signal({
+                'custom_attr': 'custom',
+            }),
+        ])
         blk.stop()
-        mock_datetime.now.assert_not_called()
-        mock_datetime.utcnow.assert_called_once_with()
 
-    @patch('datetime.datetime')
-    def test_all_units(self, mock_datetime):
-        """ All units are selected"""
-        mock_datetime.now.return_value = self.mock_current_time
-        mock_datetime.strptime.return_value = self.dummy_timestamp_obj
-        delta = (self.mock_current_time - self.dummy_timestamp_obj)
-        elapsed = dict(days=0,
-                       hours=0,
-                       minutes=0,
-                       seconds=delta.total_seconds())
-
-        blk = ElapsedTime()
-        self.configure_block(blk, {
-            "units": {
-                "days": True,
-                "hours": True,
-                "minutes": True,
-                "seconds": True,
-            }
-        })
-        blk.start()
-        blk.process_signals([Signal({'timestamp': self.dummy_timestamp})])
-        blk.stop()
-        # current time is checked once per signal list
-        mock_datetime.now.assert_called_once_with()
-        self.assert_num_signals_notified(1)
-        self.assertDictEqual(
-            self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
-            {'timestamp': self.dummy_timestamp, 'elapsed': elapsed})
-
-    @patch('datetime.datetime')
-    def test_some_units(self, mock_datetime):
-        """ Some units are selected"""
-        mock_datetime.now.return_value = self.mock_current_time
-        mock_datetime.strptime.return_value = self.dummy_timestamp_obj
-        delta = (self.mock_current_time - self.dummy_timestamp_obj)
-        elapsed = dict(hours=0,
-                       minutes=delta.total_seconds() / 60)
-
-        blk = ElapsedTime()
-        self.configure_block(blk, {
-            "units": {
-                "hours": True,
-                "minutes": True,
-            }
-        })
-        blk.start()
-        blk.process_signals([Signal({'timestamp': self.dummy_timestamp})])
-        blk.stop()
-        # current time is checked once per signal list
-        mock_datetime.now.assert_called_once_with()
-        self.assert_num_signals_notified(1)
-        self.assertDictEqual(
-            self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
-            {'timestamp': self.dummy_timestamp, 'elapsed': elapsed})
-
-    @patch('datetime.datetime')
-    def test_one_units(self, mock_datetime):
-        """ one unit is selected"""
-        mock_datetime.now.return_value = self.mock_current_time
-        mock_datetime.strptime.return_value = self.dummy_timestamp_obj
-        delta = (self.mock_current_time - self.dummy_timestamp_obj)
-        elapsed = dict(days=delta.days)
-
-        blk = ElapsedTime()
-        self.configure_block(blk, {
-            "units": {
-                "days": True,
-            }
-        })
-        blk.start()
-        blk.process_signals([Signal({'timestamp': self.dummy_timestamp})])
-        blk.stop()
-        # current time is checked once per signal list
-        mock_datetime.now.assert_called_once_with()
-        self.assert_num_signals_notified(1)
-        self.assertDictEqual(
-            self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
-            {'timestamp': self.dummy_timestamp, 'elapsed': elapsed})
+        # checkout ouput
+        self.assert_last_signal_list_notified([
+            Signal({
+                'custom': {
+                    'days': ANY,
+                    'hours': ANY,
+                    'minutes': ANY,
+                    'seconds': ANY,
+                },
+            }),
+        ])
