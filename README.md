@@ -10,3 +10,7 @@ Blocks in this Collection
 Dependencies
 ===
 - [tzlocal 1.5.1](https://pypi.org/project/tzlocal/1.5.1/)
+
+Notes
+===
+These blocks implement [SignalEnrichment](https://docs.n.io/blocks/block-mixins/enrich-signals.html) with a custom subclass of `EnrichProperties` so that `exclude_existing` has a default value of `False`.
