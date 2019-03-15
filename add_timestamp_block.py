@@ -15,6 +15,7 @@ class CustomEnrichProperties(EnrichProperties):
 class AddTimestamp(EnrichSignals, Block):
 
     utc = BoolProperty(title='UTC', default=True)
+
     output_attr = StringProperty(
         title='Outgoing Signal Attribute',
         default='timestamp',
@@ -25,6 +26,7 @@ class AddTimestamp(EnrichSignals, Block):
         default=True,
         order=1,
         advanced=True)
+
     enrich = ObjectProperty(
         CustomEnrichProperties,
         title='Signal Enrichment',
