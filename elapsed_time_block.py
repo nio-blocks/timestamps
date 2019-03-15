@@ -40,9 +40,8 @@ class ElapsedTime(EnrichSignals, Block):
 
     def _get_timedelta(self, signal):
         """ Returns computed delta in terms of `units` using `signal`"""
-        timestamp_a = self.timestamp_a(signal)
-        timestamp_b = self.timestamp_b(signal)
-        time_a, time_b = self._load_timestamps(timestamp_a, timestamp_b)
+        time_a = self._load_timestamp(self.timestamp_a(signal))
+        time_b = self._load_timestamp(self.timestamp_b(signal))
         # subtract datetimes to get timedelta in seconds
         seconds = (time_b - time_a).total_seconds()
         # convert to other units
@@ -71,9 +70,3 @@ class ElapsedTime(EnrichSignals, Block):
             timestamp,
             timestamp_format.format(milliseconds))
         return time
-
-    def _load_timestamps(self, timestamp_a, timestamp_b):
-        """ Returns offset-aware datetime objects from ISO 8601 strings."""
-        time_a = self._load_timestamp(timestamp_a)
-        time_b = self._load_timestamp(timestamp_b)
-        return time_a, time_b
