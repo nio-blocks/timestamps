@@ -112,7 +112,7 @@ Similarly, with all of the available **Units** selected, each will be truncated 
       "days": 0,
       "hours": 0,
       "minutes": 42,
-      "seconds": 3.141593
+      "seconds": 3.142
     },
     "past": "1984-05-03T00:00:00.000Z",
     "present": "1984-05-03T00:42:03.142Z"
