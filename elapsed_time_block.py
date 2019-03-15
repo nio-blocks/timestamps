@@ -58,16 +58,13 @@ class ElapsedTime(EnrichSignals, Block):
 
     def _load_timestamp(self, timestamp):
         """ Returns a datetime object from an ISO 8601 string."""
-        timestamp_format = '%Y-%m-%dT%H:%M:%S{}%z'
         if '.' in timestamp:  # includes milliseconds
-            milliseconds = '.%f'
+            timestamp_format = '%Y-%m-%dT%H:%M:%S.%f%z'
         else:
-            milliseconds = ''
+            timestamp_format = '%Y-%m-%dT%H:%M:%S%z'
         if timestamp.endswith('Z'):  # UTC timezone
             # include an offset so that resulting datetime is timezone aware
             timestamp = timestamp.replace('Z', '+0000')
         # create datetime object from timestamp string
-        time = datetime.strptime(
-            timestamp,
-            timestamp_format.format(milliseconds))
+        time = datetime.strptime(timestamp, timestamp_format)
         return time
