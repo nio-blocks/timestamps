@@ -68,7 +68,6 @@ class ElapsedTime(EnrichSignals, Block):
             timestamp_format += '%z'
         # create datetime object from timestamp string
         time = datetime.strptime(timestamp, timestamp_format)
-        if time.tzinfo is None:
-            # add UTC timezone info to naive object
+        if time.tzinfo is None:  # if UTC the datetime will be offset-naive
             time = time.replace(tzinfo=timezone.utc)
         return time
