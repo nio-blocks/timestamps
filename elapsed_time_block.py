@@ -2,13 +2,21 @@ from datetime import datetime, timezone
 from nio import Block
 from nio.block.mixins import EnrichSignals
 from nio.block.mixins.enrich.enrich_signals import EnrichProperties
-from nio.properties import BoolProperty, ObjectProperty, StringProperty, \
-    VersionProperty
+from nio.properties import BoolProperty, ObjectProperty, PropertyHolder, \
+    StringProperty, VersionProperty
 
 
 class CustomEnrichProperties(EnrichProperties):
     """ Overrides default enrichment to include existing fields."""
     exclude_existing = BoolProperty(title='Exclude Existing?', default=False)
+
+
+class Units(PropertyHolder):
+
+    days = BoolProperty(title='Days', default=False)
+    hours = BoolProperty(title='Hours', default=False)
+    minutes = BoolProperty(title='Minutes', default=False)
+    seconds = BoolProperty(title='Seconds', default=False)
 
 
 class ElapsedTime(EnrichSignals, Block):
@@ -20,6 +28,12 @@ class ElapsedTime(EnrichSignals, Block):
         title='Outgoing Signal Attribute',
         default='timedelta',
         order=0,
+        advanced=True)
+    units = ObjectProperty(
+        Units,
+        title='Units',
+        default=Units(),
+        order=1,
         advanced=True)
 
     enrich = ObjectProperty(
@@ -44,16 +58,64 @@ class ElapsedTime(EnrichSignals, Block):
         time_b = self._load_timestamp(self.timestamp_b(signal))
         # subtract datetimes to get timedelta in seconds
         seconds = (time_b - time_a).total_seconds()
-        # convert to other units
+        # convert into more significant units
         minutes = seconds / 60
         hours = minutes / 60
         days = hours / 24
-        delta = {
-            'days': days,
-            'hours': hours,
-            'minutes': minutes,
-            'seconds': seconds,
-        }
+        # parse into selected units
+        all_units_selected = (
+            self.units().days(signal) and
+            self.units().hours(signal) and 
+            self.units().minutes(signal) and 
+            self.units().seconds(signal))
+        any_units_selected = (
+            self.units().days(signal) or
+            self.units().hours(signal) or 
+            self.units().minutes(signal) or 
+            self.units().seconds(signal))
+        if not any_units_selected:
+            # the default case
+            delta = {
+                'days': days,
+                'hours': hours,
+                'minutes': minutes,
+                'seconds': seconds,
+            }
+        elif all_units_selected:
+            delta = {
+                'days': int(days),
+                'hours': int(hours),
+                'minutes': int(minutes),
+                'seconds': seconds % 60,
+            }
+        else:
+            # some units selected
+            delta = {}
+            if self.units().days(signal):
+                less_significant_selected = (
+                    self.units().hours(signal) or
+                    self.units().minutes(signal) or
+                    self.units().seconds(signal))
+                if not less_significant_selected:
+                    delta['days'] = days
+                else:
+                    delta['days'] = int(days)
+            if self.units().hours(signal):
+                less_significant_selected = (
+                    self.units().minutes(signal) or
+                    self.units().seconds(signal))
+                if not less_significant_selected:
+                    delta['hours'] = hours
+                else:
+                    delta['hours'] = int(hours)
+            if self.units().minutes(signal):
+                less_significant_selected = self.units().seconds(signal)
+                if not less_significant_selected:
+                    delta['minutes'] = minutes
+                else:
+                    delta['minutes'] = int(less_significant_selected)
+            if self.units().seconds(signal):
+                delta['seconds'] = seconds
         return delta
 
     def _load_timestamp(self, timestamp):
