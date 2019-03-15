@@ -38,16 +38,16 @@ Process a list of signals:
 ]
 ```
 
-The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is parsed according to any selected **Units** and added to the incoming signal in the **Outgoing Signal Attribute**. Because each of **Units** is de-selected by default, in this example all available units will be included, with decimal places, in the output:
+The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is parsed according to any selected **Units** and added to the incoming signal in the **Outgoing Signal Attribute**. Because each of **Units** is de-selected by default, in this example the elapsed time is represented individually with each unit, with decimal places, in the output:
 
 ```
 [
   {
     "timedelta": {
       "days": 0.029166...,
-      "hours": 0.7,
+      "hours": 0.700873...,
       "minutes": 42.074799...,
-      "seconds": 45.141593
+      "seconds": 2523.142
     },
     "past": "1984-05-03T00:00:00.000Z",
     "present": "1984-05-03T00:42:03.142Z"
@@ -55,10 +55,12 @@ The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is par
 ]
 ```
 
+To put it another way, if each of **Units** is `False` then the values in **Outgoing Signal Attribute** all represent the same time interval using different units.
+
 Example 2a
 ---
 
-If selecting one or more **Units**, only those units will be included in `timedelta`. The least significant of the **Units** selected will remain a floating-point number (with a decimal), while all others will be (whole) integers.
+If selecting one or more **Units**, the computed duration between **Timestamp A** and **Timestamp B** will be represented in terms of those units in **Outgoing Signal Attribute**. The least significant of the **Units** selected will be a floating-point number (with a decimal), while all others will be (whole) integers. This is useful, for example, when preparing data for a human to read.
 
 Configure the block, selecting some of **Units**:
 
@@ -101,7 +103,7 @@ Less than one full hour has elapsed from **Timestamp A** to **Timestamp B** so `
 Example 2b
 ---
 
-Similarly, had all of the available **Units** been selected they would all be included with an integer value for each except for the least significant, *Seconds*:
+Similarly, with all of the available **Units** selected, each will be truncated to an integer value, except for the least significant, *Seconds*, which is a float:
 
 ```
 [
@@ -121,13 +123,13 @@ Similarly, had all of the available **Units** been selected they would all be in
 Example 2c
 ===
 
-If a single item from **Units** is selected, for example *Hours*:
+If a single item from **Units** is selected, for example *Hours*, the entire timedelta is represented only in terms of that **Unit**:
 
 ```
 [
   {
     "timedelta": {
-      "hours": 0.7
+      "hours": 0.700873...
     },
     "past": "1984-05-03T00:00:00.000Z",
     "present": "1984-05-03T00:42:03.142Z"
