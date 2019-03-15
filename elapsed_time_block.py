@@ -57,6 +57,7 @@ class ElapsedTime(EnrichSignals, Block):
         return delta
 
     def _load_timestamp(self, timestamp):
+        """ Returns a datetime object from an ISO 8601 string."""
         timestamp_format = '%Y-%m-%dT%H:%M:%S{}%z'
         if '.' in timestamp:  # includes milliseconds
             milliseconds = '.%f'

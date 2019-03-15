@@ -1,6 +1,6 @@
 ElapsedTime
 ===
-Compare Two [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted timestamps, **Timestamp A** and **Timestamp B**, and add the elapsed time delta information to each incoming signal. Elapsed times can be represented in any or all of four floating point numbers representing *Days*, *Hours*, *Minutes*, and *Seconds*; including negative values in the case that **Time A** is later than **Time B**.
+Compare Two [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted timestamps, **Timestamp A** and **Timestamp B**, and add the elapsed time delta information to each incoming signal. Computed time deltas account for timezones and Daylight Savings Time. The total elapsed time can be represented in any or all of four floating point numbers representing *Days*, *Hours*, *Minutes*, and *Seconds*; including negative values in the case that **Time A** is later than **Time B**.
 
 See Also: [*AddTimestamp*](https://blocks.n.io/AddTimestamp) for creating timestamps.
 
@@ -38,7 +38,9 @@ Process a list of signals:
 ]
 ```
 
-The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is parsed according to any selected **Units** and added to the incoming signal in the **Outgoing Signal Attribute**. Because each of **Units** is de-selected by default, in this example the elapsed time is represented individually with each unit, with decimal places, in the output:
+The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is parsed according to any selected **Units** and added to the incoming signal in the **Outgoing Signal Attribute**. In this example both timestamps are in the UTC timezone (designated by the `Z` suffix) and include (optional) milliseconds. Timezone offsets, including Daylight Savings Time adjustments, are accounted for and therefore all timestamps must include the UTC offset *without* additonal delimiters such as `:`.
+
+Because each of **Units** is de-selected by default, in this example the elapsed time is represented individually with each unit, with decimal places, in `$timedelta`
 
 ```
 [
@@ -55,7 +57,7 @@ The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is par
 ]
 ```
 
-To put it another way, if each of **Units** is `False` then the values in **Outgoing Signal Attribute** all represent the same time interval using different units.
+To put it another way, if each of **Units** is `False` then the values in **Outgoing Signal Attribute** all represent the same time interval using different units. Notice that by default the incoming signal's fields are included in the outgoing signal.
 
 Example 2a
 ---
