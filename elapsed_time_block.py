@@ -33,8 +33,8 @@ class ElapsedTime(EnrichSignals, Block):
     def process_signal(self, signal):
         delta = self._get_timedelta(signal)
         signal_dict = {
-                self.output_attr(signal): delta,
-            }
+            self.output_attr(signal): delta,
+        }
         output_signal = self.get_output_signal(signal_dict, signal)
         return output_signal
 
