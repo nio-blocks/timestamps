@@ -1,27 +1,30 @@
 ElapsedTime
 ===
-Compare Two [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted timestamps and add the elapsed time information to each incoming signal. Elapsed times can be represented in any or all of four floating point numbers representing days, hours, minutes, and seconds.
+Compare Two [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted timestamps, **Timestamp A** and **Timestamp B**, and add the elapsed time delta information to each incoming signal. Elapsed times can be represented in any or all of four floating point numbers representing *Days*, *Hours*, *Minutes*, and *Seconds*; including negative values in the case that **Time A** is later than **Time B**.
 
-See Also: [AddTimestamp](https://blocks.n.io/AddTimestamp) for creating timestamps.
+See Also: [*AddTimestamp*](https://blocks.n.io/AddTimestamp) for creating timestamps.
 
 Properties
 ===
-- **Time A**: A timestamp string.
-- **Time B**: A timestamp string.
-- **Units**
+- **Timestamp A**: An ISO timestamp string.
+- **Timestamp B**: An ISO timestamp string, in most cases this is the later of the two times, often corresponding to the present.
+- **Outgoing Signal Attribute** (advanced): Attribute of outgoing signals to contain the computed time delta, default `timedelta`
+- **Units** (advanced):
   - *Days*: default `False`
   - *Hours*: default `False`
   - *Minutes*: default `False`
   - *Seconds*: default `False`
-- **Outgoing Signal Attribute** (advanced): Attribute of outgoing signals to contain the time delta, default `elapsed_time`
 
-Example
+Examples
 ===
+
+Example 1
+---
 Configure the block to compare timestamps in an incoming signal:
 
 ```
-Timestamp A: {{ $then }}
-Timestamp B: {{ $now }}
+Timestamp A: {{ $past }}
+Timestamp B: {{ $present }}
 ```
 
 Process a list of signals:
@@ -29,36 +32,39 @@ Process a list of signals:
 ```
 [
   {
-    "now": "1984-05-03T00:42:03.141593Z",
-    "then": "1984-05-03T00:00:00.000000Z"
+    "past": "1984-05-03T00:00:00.000Z",
+    "present": "1984-05-03T00:42:03.142Z"
   }
 ]
 ```
 
-The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is parsed according to the configuration and added to the incoming signal in the **Outgoing Signal Attribute**. Because each of *Units* is de-selected by default, all available units will be included, with decmials, in the output:
+The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is parsed according to any selected **Units** and added to the incoming signal in the **Outgoing Signal Attribute**. Because each of *Units* is de-selected by default, in this example all available units will be included, with decimal places, in the output:
 
 ```
 [
   {
-    "elapsed_time": {
+    "timedelta": {
       "days": 0.029166...,
       "hours": 0.7,
       "minutes": 42.074799...,
       "seconds": 45.141593
     },
-    "now": "1984-05-03T00:42:03.141593Z",
-    "then": "1984-05-03T00:00:00.000000Z"
+    "past": "1984-05-03T00:00:00.000Z",
+    "present": "1984-05-03T00:42:03.142Z"
   }
 ]
 ```
 
-If selecting one or more **Units**, only those units will be included in `elapsed_time`. The smallest of the **Units** selected will remain a floating-point number with decmials, while all others will be integers.
+Example 2a
+---
+
+If selecting one or more **Units**, only those units will be included in `timedelta`. The least significant of the **Units** selected will remain a floating-point number (with a decimal), while all others will be (whole) integers.
 
 Configure the block, selecting some of **Units**:
 
 ```
-Time A: {{ $then }}
-Time B: {{ $now }}
+Timestamp A: {{ $past }}
+Timestamp B: {{ $present }}
 Units:
   Days: False
   Hours: True
@@ -66,59 +72,65 @@ Units:
   Seconds: False
 ```
 
-Process the same list of signals:
+Process a list of signals:
 
 ```
 [
   {
-    "now": "1984-05-03T00:42:03.141593Z",
-    "then": "1984-05-03T00:00:00.000000Z"
+    "past": "1984-05-03T00:00:00.000Z",
+    "present": "1984-05-03T00:42:03.142Z"
   }
 ]
 ```
 
-Less than one full hour has elapsed so `hours` is zero, while `minutes` includes the smaller, de-selected `seconds` component as a decimal:
+Less than one full hour has elapsed from **Timestamp A** to **Timestamp B** so `$timedelta['hours']` is zero, while `$timedelta['minutes']` includes the less significant, de-selected *Seconds* unit in its decimal:
 
 ```
 [
   {
-    "elapsed_time": {
+    "timedelta": {
       "hours": 0,
       "minutes": 42.074799...
     },
-    "now": "1984-05-03T00:42:03.141593Z",
-    "then": "1984-05-03T00:00:00.000000Z"
+    "past": "1984-05-03T00:00:00.000Z",
+    "present": "1984-05-03T00:42:03.142Z"
   }
 ]
 ```
 
-Similarly, had all of the available **Units** been selected:
+Example 2b
+---
+
+Similarly, had all of the available **Units** been selected they would all be included with an integer value for each except for the least significant, *Seconds*:
 
 ```
 [
   {
-    "elapsed_time": {
+    "timedelta": {
       "days": 0,
       "hours": 0,
       "minutes": 42,
       "seconds": 3.141593
     },
-    "now": "1984-05-03T00:42:03.141593Z",
-    "then": "1984-05-03T00:00:00.000000Z"
+    "past": "1984-05-03T00:00:00.000Z",
+    "present": "1984-05-03T00:42:03.142Z"
   }
 ]
 ```
 
-And if a single **Unit** is selected:
+Example 2c
+===
+
+If a single item from **Units** is selected, for example *Hours*:
 
 ```
 [
   {
-    "elapsed_time": {
-      "seconds": 45.141593
+    "timedelta": {
+      "hours": 0.7
     },
-    "now": "1984-05-03T00:42:03.141593Z",
-    "then": "1984-05-03T00:00:00.000000Z"
+    "past": "1984-05-03T00:00:00.000Z",
+    "present": "1984-05-03T00:42:03.142Z"
   }
 ]
 ```
