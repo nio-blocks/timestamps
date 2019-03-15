@@ -43,14 +43,14 @@ The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is par
 ```
 [
   {
+    "past": "1984-05-03T00:00:00.000Z",
+    "present": "1984-05-03T00:42:03.142Z",
     "timedelta": {
       "days": 0.029166...,
       "hours": 0.700873...,
       "minutes": 42.074799...,
       "seconds": 2523.142
-    },
-    "past": "1984-05-03T00:00:00.000Z",
-    "present": "1984-05-03T00:42:03.142Z"
+    }
   }
 ]
 ```
@@ -90,12 +90,12 @@ Less than one full hour has elapsed from **Timestamp A** to **Timestamp B** so `
 ```
 [
   {
+    "past": "1984-05-03T00:00:00.000Z",
+    "present": "1984-05-03T00:42:03.142Z",
     "timedelta": {
       "hours": 0,
       "minutes": 42.074799...
-    },
-    "past": "1984-05-03T00:00:00.000Z",
-    "present": "1984-05-03T00:42:03.142Z"
+    }
   }
 ]
 ```
@@ -108,14 +108,14 @@ Similarly, with all of the available **Units** selected, each will be truncated 
 ```
 [
   {
+    "past": "1984-05-03T00:00:00.000Z",
+    "present": "1984-05-03T00:42:03.142Z",
     "timedelta": {
       "days": 0,
       "hours": 0,
       "minutes": 42,
       "seconds": 3.142
-    },
-    "past": "1984-05-03T00:00:00.000Z",
-    "present": "1984-05-03T00:42:03.142Z"
+    }
   }
 ]
 ```
@@ -128,11 +128,11 @@ If a single item from **Units** is selected, for example *Hours*, the entire tim
 ```
 [
   {
+    "past": "1984-05-03T00:00:00.000Z",
+    "present": "1984-05-03T00:42:03.142Z",
     "timedelta": {
       "hours": 0.700873...
-    },
-    "past": "1984-05-03T00:00:00.000Z",
-    "present": "1984-05-03T00:42:03.142Z"
+    }
   }
 ]
 ```
