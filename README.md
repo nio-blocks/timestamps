@@ -13,4 +13,4 @@ Dependencies
 
 Notes
 ===
-These blocks implement [SignalEnrichment](https://docs.n.io/blocks/block-mixins/enrich-signals.html) with a custom subclass of `EnrichProperties` so that `exclude_existing` has a default value of `False`.
+These blocks implement [SignalEnrichment](https://docs.n.io/blocks/block-mixins/enrich-signals.html) with a custom subclass of `EnrichProperties` so that `EnrichProperties.exclude_existing` has a default value of `False`.
