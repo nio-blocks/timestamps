@@ -38,7 +38,7 @@ Process a list of signals:
 ]
 ```
 
-The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is parsed according to any selected **Units** and added to the incoming signal in the **Outgoing Signal Attribute**. In this example both timestamps are in the UTC timezone (designated by the `Z` suffix) and include (optional) milliseconds. Timezone offsets, including Daylight Savings Time adjustments, are accounted for and therefore all timestamps must include the UTC offset *without* additonal delimiters such as `:`.
+The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is parsed according to any selected **Units** and added to the incoming signal in the **Outgoing Signal Attribute**. In this example both timestamps are in the UTC timezone (designated by the `Z` suffix) and include (optional) milliseconds. Timezone offsets, including Daylight Savings Time adjustments, are accounted for and therefore all timestamps must include the UTC offset in the format `±HHMM` *without* additonal delimiters such as `:`.
 
 Because each of **Units** is de-selected by default, in this example the elapsed time is represented individually with each unit, with decimal places, in `$timedelta`
 
