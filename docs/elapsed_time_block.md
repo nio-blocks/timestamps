@@ -38,7 +38,7 @@ Process a list of signals:
 ]
 ```
 
-The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is parsed according to any selected **Units** and added to the incoming signal in the **Outgoing Signal Attribute**. Because each of *Units* is de-selected by default, in this example all available units will be included, with decimal places, in the output:
+The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is parsed according to any selected **Units** and added to the incoming signal in the **Outgoing Signal Attribute**. Because each of **Units** is de-selected by default, in this example all available units will be included, with decimal places, in the output:
 
 ```
 [
