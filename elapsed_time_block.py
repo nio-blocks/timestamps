@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from nio import Block
 from nio.block.mixins import EnrichSignals
 from nio.block.mixins.enrich.enrich_signals import EnrichProperties
@@ -59,12 +59,16 @@ class ElapsedTime(EnrichSignals, Block):
     def _load_timestamp(self, timestamp):
         """ Returns a datetime object from an ISO 8601 string."""
         if '.' in timestamp:  # includes milliseconds
-            timestamp_format = '%Y-%m-%dT%H:%M:%S.%f%z'
+            timestamp_format = '%Y-%m-%dT%H:%M:%S.%f'
         else:
-            timestamp_format = '%Y-%m-%dT%H:%M:%S%z'
+            timestamp_format = '%Y-%m-%dT%H:%M:%S'
         if timestamp.endswith('Z'):  # UTC timezone
-            # include an offset so that resulting datetime is timezone aware
-            timestamp = timestamp.replace('Z', '+0000')
+            timestamp_format += 'Z'
+        else:
+            timestamp_format += '%z'
         # create datetime object from timestamp string
         time = datetime.strptime(timestamp, timestamp_format)
+        if time.tzinfo is None:
+            # add UTC timezone info to naive object
+            time = time.replace(tzinfo=timezone.utc)
         return time
