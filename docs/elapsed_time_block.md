@@ -1,6 +1,6 @@
 ElapsedTime
 ===
-Compare Two [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted timestamps, **Timestamp A** and **Timestamp B**, and add the elapsed time delta information to each incoming signal. Computed time deltas account for timezone offsets. The total elapsed time can be represented in any or all of four floating point numbers representing *Days*, *Hours*, *Minutes*, and *Seconds*; including negative values in the case that **Timestamp A** is later than **Timestamp B**.
+Compare Two [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted timestamps, **Timestamp A** and **Timestamp B**, and add the elapsed time delta information to each incoming signal. Computed time deltas account for timezone offsets. The total elapsed time can be represented in any or all of four **Units**, *Days*, *Hours*, *Minutes*, and *Seconds*. These values can be negative in the case that **Timestamp A** is later than **Timestamp B**.
 
 See Also: [*AddTimestamp*](https://blocks.n.io/AddTimestamp) for creating timestamps.
 
