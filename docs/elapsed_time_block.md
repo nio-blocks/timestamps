@@ -123,7 +123,7 @@ Similarly, with all of the available **Units** selected, each will be truncated 
 ```
 
 Example 2c
-===
+---
 
 If a single item from **Units** is selected, for example *Hours*, the entire timedelta is represented only in terms of that **Unit**:
 
