@@ -65,13 +65,13 @@ class ElapsedTime(EnrichSignals, Block):
         # parse into selected units
         all_units_selected = (
             self.units().days(signal) and
-            self.units().hours(signal) and 
-            self.units().minutes(signal) and 
+            self.units().hours(signal) and
+            self.units().minutes(signal) and
             self.units().seconds(signal))
         any_units_selected = (
             self.units().days(signal) or
-            self.units().hours(signal) or 
-            self.units().minutes(signal) or 
+            self.units().hours(signal) or
+            self.units().minutes(signal) or
             self.units().seconds(signal))
         if not any_units_selected:
             # the default case

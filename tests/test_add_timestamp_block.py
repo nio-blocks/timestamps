@@ -9,7 +9,7 @@ from ..add_timestamp_block import AddTimestamp
 class TestAddTimestamp(NIOBlockTestCase):
 
     def validate_timestamps(self, format, attr='timestamp'):
-        """ Iterates over the notified signal list and raises ValueError if 
+        """ Iterates over the notified signal list and raises ValueError if
             any signal's `attr` is not valid according to `format`.
         """
         for signal in self.last_notified[DEFAULT_TERMINAL]:

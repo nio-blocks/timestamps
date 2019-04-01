@@ -146,7 +146,7 @@ class TestElapsedTime(NIOBlockTestCase):
         ])
 
     def test_some_units_selected(self):
-        """ Elapsed time is returned in only the selected unit."""
+        """ Elapsed time is parsed into the selected units."""
         blk = ElapsedTime()
         config = {
             'timestamp_a': self.timestamp_a,

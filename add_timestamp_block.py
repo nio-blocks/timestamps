@@ -9,6 +9,7 @@ from nio.properties import BoolProperty, ObjectProperty, StringProperty, \
 
 class CustomEnrichProperties(EnrichProperties):
     """ Overrides default enrichment to include existing fields."""
+
     exclude_existing = BoolProperty(title='Exclude Existing?', default=False)
 
 
@@ -56,9 +57,9 @@ class AddTimestamp(EnrichSignals, Block):
             # Add timezone
             current_time += 'Z'
         else:
-            # TODO: Add options for TZ format
             current_time_tz = get_localzone().localize(datetime.now())
             current_time = str(current_time_tz.isoformat(timespec=timespec))
-            # remove colon from TZ info
+            # TODO: Add options for TZ format (±HHMM, ±HH:MM, ±HH)
+            # remove colon from TZ info (±HHMM format)
             current_time = ''.join(current_time.rsplit(':', 1))
         return current_time
