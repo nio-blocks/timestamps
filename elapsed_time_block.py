@@ -40,6 +40,7 @@ class ElapsedTime(EnrichSignals, Block):
         default=True,
         order=2,
         advanced=True)
+
     enrich = ObjectProperty(
         CustomEnrichProperties,
         title='Signal Enrichment',
