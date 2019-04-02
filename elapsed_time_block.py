@@ -17,10 +17,6 @@ class Units(PropertyHolder):
     hours = BoolProperty(title='Hours', default=False, order=1)
     minutes = BoolProperty(title='Minutes', default=False, order=2)
     seconds = BoolProperty(title='Seconds', default=False, order=3)
-    milliseconds = BoolProperty(
-        title='Include Milliseconds',
-        default=True,
-        order=4)
 
 
 class ElapsedTime(EnrichSignals, Block):
@@ -38,6 +34,11 @@ class ElapsedTime(EnrichSignals, Block):
         title='Units',
         default=Units(),
         order=1,
+        advanced=True)
+    milliseconds = BoolProperty(
+        title='Include Milliseconds',
+        default=True,
+        order=2,
         advanced=True)
     enrich = ObjectProperty(
         CustomEnrichProperties,
@@ -57,7 +58,7 @@ class ElapsedTime(EnrichSignals, Block):
 
     def _get_timedelta(self, signal):
         """ Returns computed delta in terms of `units` using `signal`"""
-        truncate = not self.units().milliseconds(signal)
+        truncate = not self.milliseconds(signal)
         time_a = self._load_timestamp(
             self.timestamp_a(signal),
             truncate=truncate)

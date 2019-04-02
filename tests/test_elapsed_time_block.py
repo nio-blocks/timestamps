@@ -302,12 +302,12 @@ class TestElapsedTime(NIOBlockTestCase):
         """ Milliseconds in incoming timestamps can optionally be truncated."""
         blk = ElapsedTime()
         config = {
+            'milliseconds': '{{ $ms }}',
             'units': {
                 'days': True,
                 'hours': True,
                 'minutes': True,
                 'seconds': True,
-                'milliseconds': '{{ $ms }}',
             },
             'timestamp_a': '1984-05-03T00:00:00.999Z',
             'timestamp_b': '1984-05-03T00:00:01.001Z',
