@@ -17,7 +17,7 @@ Advanced Properties
   - *Hours*: default `False`
   - *Minutes*: default `False`
   - *Seconds*: default `False`
-  - *Include Milliseconds*: default `True`. When de-selected, milliseconds in incoming timestamps will be ignored.
+- **Include Milliseconds**: default `True`. When de-selected, milliseconds in incoming timestamps will be ignored.
 
 Examples
 ===
@@ -148,11 +148,24 @@ Example 3
 
 When **Include Milliseconds** is `False`, incoming timstamps will be truncated to whole seconds. In this example, two timestamps are only 0.001 second apart, but the computed delta will be `1` because each timestamp was truncated to whole seconds before comparison. This is distinct from truncating the computed timedelta, in which case the result would have been `0`:
 
+Configure the block:
+
+```
+Timestamp A: "1999-12-31T23:59:59.999Z"
+Timestamp B: "2000-12-31T00:00:00.000Z"
+Units:
+  Days: True
+  Hours: True
+  Minutes: True
+  Seconds: True
+Include Milliseconds: False
+```
+
+The outgoing signal:
+
 ```
 [
   {
-    "past": "1999-12-31T23:59:59.999Z",
-    "present": "2000-12-31T00:00:00.000Z",
     "timedelta": {
       "days": 0,
       "hours": 0,
