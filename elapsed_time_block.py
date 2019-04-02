@@ -82,39 +82,58 @@ class ElapsedTime(EnrichSignals, Block):
                 'seconds': seconds,
             }
         elif all_units_selected:
+            d = int(days)
+            h = int(hours % (d * 24))
+            m = int(minutes % (h * 60)) % 60
+            s = seconds % 60
             delta = {
-                'days': int(days),
-                'hours': int(hours),
-                'minutes': int(minutes),
-                'seconds': seconds % 60,
+                'days': d,
+                'hours': h,
+                'minutes': m,
+                'seconds': s,
             }
         else:
             # some units selected
             delta = {}
             if self.units().days(signal):
-                less_significant_selected = (
-                    self.units().hours(signal) or
-                    self.units().minutes(signal) or
-                    self.units().seconds(signal))
-                if not less_significant_selected:
-                    delta['days'] = days
-                else:
+                less_significant_selected = \
+                    self.units().hours(signal) or \
+                    self.units().minutes(signal) or \
+                    self.units().seconds(signal)
+                if less_significant_selected:
                     delta['days'] = int(days)
-            if self.units().hours(signal):
-                less_significant_selected = (
-                    self.units().minutes(signal) or
-                    self.units().seconds(signal))
-                if not less_significant_selected:
-                    delta['hours'] = hours
                 else:
+                    delta['days'] = days
+            if self.units().hours(signal):
+                less_significant_selected = \
+                    self.units().minutes(signal) or \
+                    self.units().seconds(signal)
+                # more significant selections
+                if self.units().days(signal):
+                    hours = hours % (int(days) * 24)
+                if less_significant_selected:
                     delta['hours'] = int(hours)
+                else:
+                    delta['hours'] = hours
             if self.units().minutes(signal):
                 less_significant_selected = self.units().seconds(signal)
-                if not less_significant_selected:
-                    delta['minutes'] = minutes
+                # more significant selections
+                if self.units().hours(signal):
+                    minutes = minutes % (int(hours) * 60)
+                elif self.units().days(signal):
+                    minutes = minutes % (int(days) * 60 * 24)
+                if less_significant_selected:
+                    delta['minutes'] = int(minutes)
                 else:
-                    delta['minutes'] = int(less_significant_selected)
+                    delta['minutes'] = minutes
             if self.units().seconds(signal):
+                # more significant selections
+                if self.units().minutes(signal):
+                    seconds = seconds % (int(minutes) * 60)
+                elif self.units().hours(signal):
+                    seconds = seconds % (int(hours) * 60**2)
+                elif self.units().days(signal):
+                    seconds = seconds % (int(days) * 60**2 * 24)
                 delta['seconds'] = seconds
         return delta
 
