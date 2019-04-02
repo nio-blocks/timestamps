@@ -36,26 +36,26 @@ Process a list of signals:
 ```
 [
   {
-    "past": "1984-05-03T00:00:00.000Z",
-    "present": "1984-05-03T00:42:03.142Z"
+    "past": "1984-05-03T05:45:00+0545",
+    "present": "1984-05-04T12:42:03.142Z"
   }
 ]
 ```
 
-The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is parsed according to any selected **Units** and added to the incoming signal in the **Outgoing Signal Attribute**. In this example both timestamps are in the UTC timezone (designated by the `Z` suffix) and include (optional) milliseconds. Timezone offsets, including Daylight Savings Time adjustments, are accounted for and therefore all timestamps must include the UTC offset in the format `±HHMM` *without* additonal delimiters such as `:`.
+The timestamps are compared, and the delta of `Timestamp B - Timestamp A` is parsed according to any selected **Units** and added to the incoming signal in the **Outgoing Signal Attribute**. In this example each timestamp uses a different timezone offset and includes (optional) milliseconds. Timezone offsets (including Daylight Savings Time adjustments) are accounted for and therefore all timestamps must include the UTC offset in the format `±HHMM`
 
 Because each of **Units** is de-selected by default, in this example the elapsed time is represented individually with each unit, with decimal places, in `$timedelta`
 
 ```
 [
   {
-    "past": "1984-05-03T00:00:00.000Z",
-    "present": "1984-05-03T00:42:03.142Z",
+    "past": "1984-05-03T05:45:00+0545",
+    "present": "1984-05-04T12:42:03.142Z",
     "timedelta": {
-      "days": 0.029166...,
-      "hours": 0.700873...,
-      "minutes": 42.074799...,
-      "seconds": 2523.142
+      "days": 1.529...,
+      "hours": 36.700...,
+      "minutes": 2202.052...,
+      "seconds": 132123.142
     }
   }
 ]
@@ -85,8 +85,8 @@ Process a list of signals:
 ```
 [
   {
-    "past": "1984-05-03T00:00:00.000Z",
-    "present": "1984-05-03T00:42:03.142Z"
+    "past": "1984-05-03T05:45:00+0545",
+    "present": "1984-05-04T12:42:03.142Z"
   }
 ]
 ```
@@ -96,11 +96,11 @@ Less than one full hour has elapsed from **Timestamp A** to **Timestamp B** so `
 ```
 [
   {
-    "past": "1984-05-03T00:00:00.000Z",
-    "present": "1984-05-03T00:42:03.142Z",
+    "past": "1984-05-03T05:45:00+0545",
+    "present": "1984-05-04T12:42:03.142Z",
     "timedelta": {
-      "hours": 0,
-      "minutes": 42.074799...
+      "hours": 36,
+      "minutes": 42.052...,
     }
   }
 ]
@@ -114,11 +114,11 @@ Similarly, with all of the available **Units** selected, each will be truncated 
 ```
 [
   {
-    "past": "1984-05-03T00:00:00.000Z",
-    "present": "1984-05-03T00:42:03.142Z",
+    "past": "1984-05-03T05:45:00+0545",
+    "present": "1984-05-04T12:42:03.142Z",
     "timedelta": {
-      "days": 0,
-      "hours": 0,
+      "days": 1,
+      "hours": 12,
       "minutes": 42,
       "seconds": 3.142
     }
@@ -137,7 +137,7 @@ If a single item from **Units** is selected, for example *Hours*, the entire tim
     "past": "1984-05-03T00:00:00.000Z",
     "present": "1984-05-03T00:42:03.142Z",
     "timedelta": {
-      "hours": 0.700873...
+      "hours": 36.700...
     }
   }
 ]
@@ -146,7 +146,7 @@ If a single item from **Units** is selected, for example *Hours*, the entire tim
 Example 3
 ---
 
-When **Include Milliseconds** is `False`, incoming timstamps will be truncated to whole seconds. In this example, two timestamps are only 0.001 second apart, but the computed delta will be `1` because each timestamp was truncated to whole seconds before comparison. This is distinct from truncating the computed timedelta, in which case the result would have been `0`:
+When **Include Milliseconds** is `False`, incoming timstamps will be truncated to whole seconds. In this example, two timestamps are only 0.001 second apart, but the computed delta will be `1` because each timestamp was truncated to whole seconds before comparison. This is distinct from truncating the computed timedelta, in which case the result would have been `0`. Note that in this case, all values in the outgoing signal are integers.
 
 Configure the block:
 
