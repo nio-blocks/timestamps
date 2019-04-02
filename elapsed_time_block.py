@@ -13,10 +13,14 @@ class CustomEnrichProperties(EnrichProperties):
 
 class Units(PropertyHolder):
 
-    days = BoolProperty(title='Days', default=False)
-    hours = BoolProperty(title='Hours', default=False)
-    minutes = BoolProperty(title='Minutes', default=False)
-    seconds = BoolProperty(title='Seconds', default=False)
+    days = BoolProperty(title='Days', default=False, order=0)
+    hours = BoolProperty(title='Hours', default=False, order=1)
+    minutes = BoolProperty(title='Minutes', default=False, order=2)
+    seconds = BoolProperty(title='Seconds', default=False, order=3)
+    milliseconds = BoolProperty(
+        title='Include Milliseconds',
+        default=True,
+        order=4)
 
 
 class ElapsedTime(EnrichSignals, Block):
@@ -35,7 +39,6 @@ class ElapsedTime(EnrichSignals, Block):
         default=Units(),
         order=1,
         advanced=True)
-
     enrich = ObjectProperty(
         CustomEnrichProperties,
         title='Signal Enrichment',
@@ -54,8 +57,13 @@ class ElapsedTime(EnrichSignals, Block):
 
     def _get_timedelta(self, signal):
         """ Returns computed delta in terms of `units` using `signal`"""
-        time_a = self._load_timestamp(self.timestamp_a(signal))
-        time_b = self._load_timestamp(self.timestamp_b(signal))
+        truncate = not self.units().milliseconds()
+        time_a = self._load_timestamp(
+            self.timestamp_a(signal),
+            truncate=truncate)
+        time_b = self._load_timestamp(
+            self.timestamp_b(signal),
+            truncate=truncate)
         # subtract datetimes to get timedelta in seconds
         seconds = (time_b - time_a).total_seconds()
         # convert into more significant units
@@ -82,65 +90,113 @@ class ElapsedTime(EnrichSignals, Block):
                 'seconds': seconds,
             }
         elif all_units_selected:
-            d = int(days)
-            h = int(hours % (d * 24))
-            m = int(minutes % (h * 60)) % 60
-            s = seconds % 60
+            _days = int(days)
+            _hours = int(hours % (_days * 24))
+            _minutes = int(minutes % (_hours * 60)) % 60
+            _seconds = seconds % 60
             delta = {
-                'days': d,
-                'hours': h,
-                'minutes': m,
-                'seconds': s,
+                'days': _days,
+                'hours': _hours,
+                'minutes': _minutes,
+                'seconds': _seconds,
             }
         else:
             # some units selected
             delta = {}
-            if self.units().days(signal):
-                less_significant_selected = \
-                    self.units().hours(signal) or \
-                    self.units().minutes(signal) or \
-                    self.units().seconds(signal)
-                if less_significant_selected:
-                    delta['days'] = int(days)
-                else:
-                    delta['days'] = days
-            if self.units().hours(signal):
-                less_significant_selected = \
-                    self.units().minutes(signal) or \
-                    self.units().seconds(signal)
-                # more significant selections
-                if self.units().days(signal):
-                    hours = hours % (int(days) * 24)
-                if less_significant_selected:
-                    delta['hours'] = int(hours)
-                else:
-                    delta['hours'] = hours
-            if self.units().minutes(signal):
-                less_significant_selected = self.units().seconds(signal)
-                # more significant selections
-                if self.units().hours(signal):
-                    minutes = minutes % (int(hours) * 60)
-                elif self.units().days(signal):
-                    minutes = minutes % (int(days) * 60 * 24)
-                if less_significant_selected:
-                    delta['minutes'] = int(minutes)
-                else:
-                    delta['minutes'] = minutes
             if self.units().seconds(signal):
-                # more significant selections
-                if self.units().minutes(signal):
-                    seconds = seconds % (int(minutes) * 60)
+                more_significant_selected = \
+                    self.units().days(signal) or \
+                    self.units().hours(signal) or \
+                    self.units().minutes(signal)
+                if not more_significant_selected:
+                    # seconds only
+                    delta['seconds'] = seconds
+                elif self.units().minutes(signal):
+                    more_significant_selected = \
+                        self.units().days(signal) or \
+                        self.units().hours(signal)
+                    if not more_significant_selected:
+                        # seconds and minutes
+                        delta['minutes'] = int(minutes)
+                        delta['seconds'] = seconds % (delta['minutes'] * 60)
+                    elif self.units().hours(signal):
+                        more_significant_selected = self.units().days(signal)
+                        if not more_significant_selected:
+                            # seconds and minutes and hours
+                            delta['hours'] = int(hours)
+                            delta['minutes'] = \
+                                int(minutes % (delta['hours'] * 60))
+                            delta['seconds'] = seconds % 60
+                        else:
+                            # seconds and minutes and hours and days
+                            # aka all_units_selected, already covered
+                            pass
+                    elif self.units().days(signal):
+                        # seconds and minutes and days
+                        delta['days'] = int(days)
+                        delta['minutes'] = int(minutes % (60 * 24))
+                        delta['seconds'] = seconds % 60
                 elif self.units().hours(signal):
-                    seconds = seconds % (int(hours) * 60**2)
+                    more_significant_selected = self.units().days(signal)
+                    if not more_significant_selected:
+                        # seconds and hours
+                        delta['hours'] = int(hours)
+                        delta['seconds'] = seconds % (delta['hours'] * 60**2)
+                    else:
+                        # seconds and hours and days
+                        delta['days'] = int(days)
+                        delta['hours'] = int(hours % (delta['days'] * 24))
+                        delta['seconds'] = seconds % (delta['hours'] * 60**2)
                 elif self.units().days(signal):
-                    seconds = seconds % (int(days) * 60**2 * 24)
-                delta['seconds'] = seconds
+                    # seconds and days
+                    delta['days'] = int(days)
+                    delta['seconds'] = seconds % (delta['days'] * 60**2 *24)
+            elif self.units().minutes(signal):
+                more_significant_selected = \
+                    self.units().days(signal) or \
+                    self.units().hours(signal)
+                if not more_significant_selected:
+                    # minutes only
+                    delta['minutes'] = minutes
+                elif self.units().hours(signal):
+                    more_significant_selected = self.units().days(signal)
+                    if not more_significant_selected:
+                        # minutes and hours
+                        delta['hours'] = int(hours)
+                        delta['minutes'] = minutes % (delta['hours'] * 60)
+                    else:
+                        # minutes and hours and days
+                        delta['days'] = int(days)
+                        delta['hours'] = int(hours % (delta['days'] * 24))
+                        delta['minutes'] = minutes % (delta['hours'] * 60)
+                elif self.units().days(signal):
+                    # minutes and days
+                    delta['days'] = int(days)
+                    delta['minutes'] = minutes % (delta['days'] * 60 *24)
+            elif self.units().hours(signal):
+                more_significant_selected = self.units().days(signal)
+                if not more_significant_selected:
+                    # hours only
+                    delta['hours'] = hours
+                else:
+                    # hours and days
+                    delta['days'] = int(days)
+                    delta['hours'] = hours % (delta['days'] * 24)
+            elif self.units().days(signal):
+                # days only
+                delta['days'] = days
         return delta
 
-    def _load_timestamp(self, timestamp):
+    def _load_timestamp(self, timestamp, truncate=False):
         """ Returns a datetime object from an ISO 8601 string."""
         if '.' in timestamp:  # includes milliseconds
-            timestamp_format = '%Y-%m-%dT%H:%M:%S.%f'
+            if truncate:
+                # remove millisecond component
+                _timestamp = timestamp.split('.')
+                timestamp = _timestamp[0] + _timestamp[1][3:]
+                timestamp_format = '%Y-%m-%dT%H:%M:%S'
+            else:
+                timestamp_format = '%Y-%m-%dT%H:%M:%S.%f'
         else:
             timestamp_format = '%Y-%m-%dT%H:%M:%S'
         if timestamp.endswith('Z'):  # UTC timezone

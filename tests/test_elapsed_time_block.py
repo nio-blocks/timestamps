@@ -270,7 +270,7 @@ class TestElapsedTime(NIOBlockTestCase):
                 },
             }),
             Signal({
-                'days+hours+Seconds': {
+                'days+hours+seconds': {
                     'days': int(self.total_days),
                     'hours': int(
                         self.total_hours % (int(self.total_days) * 24)),
@@ -294,6 +294,38 @@ class TestElapsedTime(NIOBlockTestCase):
                         self.total_minutes % (int(self.total_hours) * 60)),
                     'seconds': \
                         self.total_seconds % (int(self.total_minutes) * 60),
+                },
+            }),
+        ])
+
+    def test_optional_milliseconds(self):
+        """ Milliseconds in incoming timestamps can optionally be truncated."""
+        blk = ElapsedTime()
+        config = {
+            'units': {
+                'milliseconds': False,
+            },
+            'timestamp_a': '1984-05-03T00:00:00.999Z',
+            'timestamp_b': '1984-05-03T00:00:01.001Z',
+        }
+        self.configure_block(blk, config)
+
+        # process a list of signals
+        blk.start()
+        blk.process_signals([
+            Signal(),
+        ])
+        blk.stop()
+
+        # check output
+        # milliseconds are truncated BEFORE comparing timestamps
+        self.assert_last_signal_list_notified([
+            Signal({
+                'timedelta': {
+                    'days': 1 / 60**2 / 24,
+                    'hours': 1 / 60**2,
+                    'minutes': 1 / 60,
+                    'seconds': 1.0,
                 },
             }),
         ])
