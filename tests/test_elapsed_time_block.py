@@ -91,98 +91,98 @@ class TestElapsedTime(NIOBlockTestCase):
                 'hours': False,
                 'minutes': False,
                 'seconds': False,
-                'output': 'd',
+                'output': 'days',
             }),
             Signal({
                 'days': False,
                 'hours': True,
                 'minutes': False,
                 'seconds': False,
-                'output': 'h',
+                'output': 'hours',
             }),
             Signal({
                 'days': False,
                 'hours': False,
                 'minutes': True,
                 'seconds': False,
-                'output': 'm',
+                'output': 'minutes',
             }),
             Signal({
                 'days': False,
                 'hours': False,
                 'minutes': False,
                 'seconds': True,
-                'output': 's',
+                'output': 'seconds',
             }),
             Signal({
                 'days': True,
                 'hours': True,
                 'minutes': False,
                 'seconds': False,
-                'output': 'dh',
+                'output': 'days+hours',
             }),
             Signal({
                 'days': True,
                 'hours': False,
                 'minutes': True,
                 'seconds': False,
-                'output': 'dm',
+                'output': 'days+minutes',
             }),
             Signal({
                 'days': True,
                 'hours': False,
                 'minutes': False,
                 'seconds': True,
-                'output': 'ds',
+                'output': 'days+seconds',
             }),
             Signal({
                 'days': False,
                 'hours': True,
                 'minutes': True,
                 'seconds': False,
-                'output': 'hm',
+                'output': 'hours+minutes',
             }),
             Signal({
                 'days': False,
                 'hours': True,
                 'minutes': False,
                 'seconds': True,
-                'output': 'hs',
+                'output': 'hours+seconds',
             }),
             Signal({
                 'days': False,
                 'hours': False,
                 'minutes': True,
                 'seconds': True,
-                'output': 'ms',
+                'output': 'minutes+seconds',
             }),
             Signal({
                 'days': True,
                 'hours': True,
                 'minutes': True,
                 'seconds': False,
-                'output': 'dhm',
+                'output': 'days+hours+minutes',
             }),
             Signal({
                 'days': True,
                 'hours': True,
                 'minutes': False,
                 'seconds': True,
-                'output': 'dhs',
+                'output': 'days+hours+seconds',
             }),
             Signal({
                 'days': True,
                 'hours': False,
                 'minutes': True,
                 'seconds': True,
-                'output': 'dms',
+                'output': 'days+minutes+seconds',
             }),
             Signal({
                 'days': False,
                 'hours': True,
                 'minutes': True,
                 'seconds': True,
-                'output': 'hms',
+                'output': 'hours+minutes+seconds',
             }),
         ])
         blk.stop()
@@ -199,40 +199,40 @@ class TestElapsedTime(NIOBlockTestCase):
                 },
             }),
             Signal({
-                'd': {
+                'days': {
                     'days': self.total_days,
                 },
             }),
             Signal({
-                'h': {
+                'hours': {
                     'hours': self.total_hours,
                 },
             }),
             Signal({
-                'm': {
+                'minutes': {
                     'minutes': self.total_minutes,
                 },
             }),
             Signal({
-                's': {
+                'seconds': {
                     'seconds': self.total_seconds,
                 },
             }),
             Signal({
-                'dh': {
+                'days+hours': {
                     'days': int(self.total_days),
                     'hours': self.total_hours % (int(self.total_days) * 24),
                 },
             }),
             Signal({
-                'dm': {
+                'days+minutes': {
                     'days': int(self.total_days),
                     'minutes': \
                         self.total_minutes % (int(self.total_days) * 60 * 24),
                 },
             }),
             Signal({
-                'ds': {
+                'days+seconds': {
                     'days': int(self.total_days),
                     'seconds': \
                         self.total_seconds % \
@@ -240,58 +240,58 @@ class TestElapsedTime(NIOBlockTestCase):
                 },
             }),
             Signal({
-                'hm': {
+                'hours+minutes': {
                     'hours': int(self.total_hours),
                     'minutes': \
                         self.total_minutes % (int(self.total_hours) * 60),
                 },
             }),
             Signal({
-                'hs': {
+                'hours+seconds': {
                     'hours': int(self.total_hours),
                     'seconds': \
                         self.total_seconds % (int(self.total_hours) * 60**2),
                 },
             }),
             Signal({
-                'ms': {
+                'minutes+seconds': {
                     'minutes': int(self.total_minutes),
                     'seconds': \
                         self.total_seconds % (int(self.total_minutes) * 60),
                 },
             }),
             Signal({
-                'dhm': {
+                'days+hours+minutes': {
                     'days': int(self.total_days),
-                    'hours': \
-                        int(self.total_hours % (int(self.total_days) * 24)),
+                    'hours': int(
+                        self.total_hours % (int(self.total_days) * 24)),
                     'minutes': \
                         self.total_minutes % (int(self.total_hours) * 60),
                 },
             }),
             Signal({
-                'dhs': {
+                'days+hours+Seconds': {
                     'days': int(self.total_days),
-                    'hours': \
-                        int(self.total_hours % (int(self.total_days) * 24)),
+                    'hours': int(
+                        self.total_hours % (int(self.total_days) * 24)),
                     'seconds': \
                         self.total_seconds % (int(self.total_hours) * 60**2),
                 },
             }),
             Signal({
-                'dms': {
+                'days+minutes+seconds': {
                     'days': int(self.total_days),
-                    'minutes': \
-                        int(self.total_minutes % (int(self.total_days) * 60 * 24)),
+                    'minutes': int(
+                        self.total_minutes % (int(self.total_days) * 60 * 24)),
                     'seconds': \
                         self.total_seconds % (int(self.total_minutes) * 60),
                 },
             }),
             Signal({
-                'hms': {
+                'hours+minutes+seconds': {
                     'hours': int(self.total_hours),
-                    'minutes': \
-                        int(self.total_minutes % (int(self.total_hours) * 60)),
+                    'minutes': int(
+                        self.total_minutes % (int(self.total_hours) * 60)),
                     'seconds': \
                         self.total_seconds % (int(self.total_minutes) * 60),
                 },
