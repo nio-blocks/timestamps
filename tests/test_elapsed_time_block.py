@@ -303,7 +303,11 @@ class TestElapsedTime(NIOBlockTestCase):
         blk = ElapsedTime()
         config = {
             'units': {
-                'milliseconds': False,
+                'days': True,
+                'hours': True,
+                'minutes': True,
+                'seconds': True,
+                'milliseconds': '{{ $ms }}',
             },
             'timestamp_a': '1984-05-03T00:00:00.999Z',
             'timestamp_b': '1984-05-03T00:00:01.001Z',
@@ -313,7 +317,9 @@ class TestElapsedTime(NIOBlockTestCase):
         # process a list of signals
         blk.start()
         blk.process_signals([
-            Signal(),
+            Signal({
+                'ms': False,
+            }),
         ])
         blk.stop()
 
@@ -321,11 +327,15 @@ class TestElapsedTime(NIOBlockTestCase):
         # milliseconds are truncated BEFORE comparing timestamps
         self.assert_last_signal_list_notified([
             Signal({
+                'ms': False,
                 'timedelta': {
-                    'days': 1 / 60**2 / 24,
-                    'hours': 1 / 60**2,
-                    'minutes': 1 / 60,
-                    'seconds': 1.0,
+                    'days': 0,
+                    'hours': 0,
+                    'minutes': 0,
+                    'seconds': 1,
                 },
             }),
         ])
+        # check that seconds was cast to int
+        seconds = self.last_notified[DEFAULT_TERMINAL][0].timedelta['seconds']
+        self.assertTrue(isinstance(seconds, int))

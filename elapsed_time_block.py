@@ -57,7 +57,7 @@ class ElapsedTime(EnrichSignals, Block):
 
     def _get_timedelta(self, signal):
         """ Returns computed delta in terms of `units` using `signal`"""
-        truncate = not self.units().milliseconds()
+        truncate = not self.units().milliseconds(signal)
         time_a = self._load_timestamp(
             self.timestamp_a(signal),
             truncate=truncate)
@@ -66,6 +66,9 @@ class ElapsedTime(EnrichSignals, Block):
             truncate=truncate)
         # subtract datetimes to get timedelta in seconds
         seconds = (time_b - time_a).total_seconds()
+        if truncate and self.units().seconds(signal):
+            # timedelta.total_seconds() returns a float
+            seconds = int(seconds)
         # convert into more significant units
         minutes = seconds / 60
         hours = minutes / 60
@@ -91,8 +94,16 @@ class ElapsedTime(EnrichSignals, Block):
             }
         elif all_units_selected:
             _days = int(days)
-            _hours = int(hours % (_days * 24))
-            _minutes = int(minutes % (_hours * 60)) % 60
+            try:
+                _hours = int(hours % (_days * 24))
+            except ZeroDivisionError:
+                # zero days
+                _hours = int(hours)
+            try:
+                _minutes = int(minutes % (_hours * 60)) % 60
+            except ZeroDivisionError:
+                # zero hours
+                _minutes = int(minutes)
             _seconds = seconds % 60
             delta = {
                 'days': _days,

@@ -8,12 +8,16 @@ Properties
 ===
 - **Timestamp A**: An ISO timestamp string.
 - **Timestamp B**: An ISO timestamp string, in most cases this is the later of the two times, often corresponding to the present.
+
+Advanced Properties
+---
 - **Outgoing Signal Attribute** (advanced): Attribute of outgoing signals to contain the computed time delta, default `timedelta`
 - **Units** (advanced): Options for representing the total time delta.
   - *Days*: default `False`
   - *Hours*: default `False`
   - *Minutes*: default `False`
   - *Seconds*: default `False`
+  - *Include Milliseconds*: default `True`. When de-selected, milliseconds in incoming timestamps will be ignored.
 
 Examples
 ===
@@ -134,6 +138,26 @@ If a single item from **Units** is selected, for example *Hours*, the entire tim
     "present": "1984-05-03T00:42:03.142Z",
     "timedelta": {
       "hours": 0.700873...
+    }
+  }
+]
+```
+
+Example 3
+---
+
+When **Include Milliseconds** is `False`, incoming timstamps will be truncated to whole seconds. In this example, two timestamps are only 0.001 second apart, but the computed delta will be `1` because each timestamp was truncated to whole seconds before comparison. This is distinct from truncating the computed timedelta, in which case the result would have been `0`:
+
+```
+[
+  {
+    "past": "1999-12-31T23:59:59.999Z",
+    "present": "2000-12-31T00:00:00.000Z",
+    "timedelta": {
+      "days": 0,
+      "hours": 0,
+      "minutes": 0,
+      "seconds": 1
     }
   }
 ]
