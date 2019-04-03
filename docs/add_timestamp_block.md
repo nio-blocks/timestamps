@@ -7,8 +7,11 @@ See Also: [ElapsedTime](https://blocks.n.io/ElapsedTime) for computing time inte
 Properties
 ===
 - **UTC**: Use [Coordinated Universal Time](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) instead of local machine time, default `True`
-- **Outgoing Signal Attribute** (advanced): Attribute of outgoing signals to contain the new timestamp, default `timestamp`
-- **Milliseconds** (advanced): Include milliseconds in time such as `HH:MM:SS.sss`, default `True`. If `False` the time will follow format `HH:MM:SS`
+
+Advanced Properties
+---
+- **Outgoing Signal Attribute**: Attribute of outgoing signals to contain the new timestamp, default `timestamp`
+- **Milliseconds**: Include milliseconds in time such as `HH:MM:SS.sss`, default `True`. If `False` the time will follow format `HH:MM:SS`
 
 Example
 ===
