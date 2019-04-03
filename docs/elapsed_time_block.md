@@ -31,7 +31,7 @@ Timestamp A: {{ $past }}
 Timestamp B: {{ $present }}
 ```
 
-Process a list of signals:
+Process a list of signals; these timestamps are in Nepal Standard Time (`+0545`) and UTC (`Z`), respectively, and the computed delta will account for these offsets:
 
 ```
 [
