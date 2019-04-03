@@ -350,3 +350,29 @@ class TestElapsedTime(NIOBlockTestCase):
         # check that seconds was cast to int
         seconds = self.last_notified[DEFAULT_TERMINAL][0].timedelta['seconds']
         self.assertTrue(isinstance(seconds, int))
+
+    def test_nothing_checked(self, Signal):
+        """ Empty dict out when no values are checked """
+        blk = ElapsedTime()
+        config = {
+            'units': {
+                'days': False,
+                'hours': False,
+                'minutes': False,
+                'seconds': False,
+            },
+            'timestamp_a': '1984-05-03T00:00:00.999Z',
+            'timestamp_b': '1984-05-03T00:00:01.001Z',
+        }
+        self.configure_block(blk, config)
+
+        # process a list of signals
+        blk.start()
+        blk.process_signals([Signal()])
+        blk.stop()
+
+        self.assert_last_signal_list_notified([
+            Signal({
+                'timedelta': {},
+            }),
+        ])

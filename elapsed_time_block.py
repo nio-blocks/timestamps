@@ -85,8 +85,7 @@ class ElapsedTime(EnrichSignals, Block):
         least_significant_mult = 1
 
         if not any([days_enabled, hours_enabled, mins_enabled, secs_enabled]):
-            # Treat nothing enabled as all enabled
-            days_enabled = hours_enabled = mins_enabled = secs_enabled = True
+            return {}
 
         output = {}
 
