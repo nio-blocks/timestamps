@@ -117,6 +117,8 @@ class ElapsedTime(EnrichSignals, Block):
             seconds = 0
 
         output[least_significant] += seconds / least_significant_mult
+        if secs_enabled and not self.milliseconds(signal):
+            output["seconds"] = int(output["seconds"])
 
         return output
 
