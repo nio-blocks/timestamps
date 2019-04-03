@@ -17,7 +17,7 @@ class Units(PropertyHolder):
     days = BoolProperty(title='Days', default=False, order=0)
     hours = BoolProperty(title='Hours', default=False, order=1)
     minutes = BoolProperty(title='Minutes', default=False, order=2)
-    seconds = BoolProperty(title='Seconds', default=False, order=3)
+    seconds = BoolProperty(title='Seconds', default=True, order=3)
 
 
 class ElapsedTime(EnrichSignals, Block):

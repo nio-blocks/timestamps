@@ -48,9 +48,6 @@ class TestElapsedTime(NIOBlockTestCase):
                 'timestamp_a': self.timestamp_a,
                 'timestamp_b': self.timestamp_b,
                 'timedelta': {
-                    'days': self.total_days,
-                    'hours': self.total_hours,
-                    'minutes': self.total_minutes,
                     'seconds': self.total_seconds,
                 },
             }),
