@@ -146,7 +146,7 @@ If a single item from **Units** is selected, for example *Hours*, the entire tim
 Example 3
 ---
 
-When **Include Milliseconds** is `False`, incoming timstamps will be truncated to whole seconds. In this example, two timestamps are only 0.001 second apart, but the computed delta will be `1` because each timestamp was truncated to whole seconds before comparison. This is distinct from truncating the computed timedelta, in which case the result would have been `0`. Note that in this case, all values in the outgoing signal are integers.
+When **Include Milliseconds** is `False`, incoming timstamps will be truncated to whole seconds. In this example, two timestamps are only 0.001 second apart, but the computed delta will be `1` because each timestamp was truncated to whole seconds before comparison. This is distinct from truncating the computed timedelta, in which case the result would have been `0`
 
 Configure the block:
 
@@ -161,7 +161,7 @@ Units:
 Include Milliseconds: False
 ```
 
-The outgoing signal:
+All values in the outgoing signal are integers:
 
 ```
 [
