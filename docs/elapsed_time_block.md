@@ -11,7 +11,7 @@ Properties
 
 Advanced Properties
 ---
-- **Outgoing Signal Attribute** (advanced): Attribute of outgoing signals to contain the computed time delta, default `timedelta`
+- **Outgoing Signal Attribute**: Attribute of outgoing signals to contain the computed time delta, default `timedelta`
 - **Units** (advanced): Options for representing the total time delta.
   - *Days*: default `False`
   - *Hours*: default `False`
