@@ -1,3 +1,4 @@
+import math
 from datetime import datetime, timezone
 from nio import Block
 from nio.block.mixins import EnrichSignals
@@ -50,7 +51,8 @@ class ElapsedTime(EnrichSignals, Block):
     version = VersionProperty('0.1.0')
 
     def process_signal(self, signal):
-        delta = self._get_timedelta(signal)
+        seconds = self._get_timedelta(signal)
+        delta = self._format_seconds_diff(seconds, signal)
         signal_dict = {
             self.output_attr(signal): delta,
         }
@@ -58,7 +60,7 @@ class ElapsedTime(EnrichSignals, Block):
         return output_signal
 
     def _get_timedelta(self, signal):
-        """ Returns computed delta in terms of `units` using `signal`"""
+        """Returns the number of seconds between the timestamps on a signal"""
         truncate = not self.milliseconds(signal)
         time_a = self._load_timestamp(
             self.timestamp_a(signal),
@@ -71,121 +73,52 @@ class ElapsedTime(EnrichSignals, Block):
         if truncate and self.units().seconds(signal):
             # timedelta.total_seconds() returns a float
             seconds = int(seconds)
-        # convert into more significant units
-        minutes = seconds / 60
-        hours = minutes / 60
-        days = hours / 24
-        # parse into selected units
-        all_units_selected = (
-            self.units().days(signal) and
-            self.units().hours(signal) and
-            self.units().minutes(signal) and
-            self.units().seconds(signal))
-        any_units_selected = (
-            self.units().days(signal) or
-            self.units().hours(signal) or
-            self.units().minutes(signal) or
-            self.units().seconds(signal))
-        if not any_units_selected:
-            # the default case
-            delta = {
-                'days': days,
-                'hours': hours,
-                'minutes': minutes,
-                'seconds': seconds,
-            }
-        elif all_units_selected:
-            _days = int(days)
-            try:
-                _hours = int(hours % (_days * 24))
-            except ZeroDivisionError:
-                # zero days
-                _hours = int(hours)
-            try:
-                _minutes = int(minutes % (_hours * 60)) % 60
-            except ZeroDivisionError:
-                # zero hours
-                _minutes = int(minutes)
-            _seconds = seconds % 60
-            delta = {
-                'days': _days,
-                'hours': _hours,
-                'minutes': _minutes,
-                'seconds': _seconds,
-            }
-        else:
-            # some units selected
-            delta = {}
-            if self.units().seconds(signal):
-                if not self._more_significant_selected('seconds', signal):
-                    # seconds only
-                    delta['seconds'] = seconds
-                elif self.units().minutes(signal):
-                    if not self._more_significant_selected('minutes', signal):
-                        # seconds and minutes
-                        delta['minutes'] = int(minutes)
-                        delta['seconds'] = seconds % (delta['minutes'] * 60)
-                    elif self.units().hours(signal):
-                        if not self._more_significant_selected(
-                                'hours', signal):
-                            # seconds and minutes and hours
-                            delta['hours'] = int(hours)
-                            delta['minutes'] = \
-                                int(minutes % (delta['hours'] * 60))
-                            delta['seconds'] = seconds % 60
-                        else:
-                            # seconds and minutes and hours and days
-                            # aka all_units_selected, already covered
-                            pass
-                    elif self.units().days(signal):
-                        # seconds and minutes and days
-                        delta['days'] = int(days)
-                        delta['minutes'] = int(minutes % (60 * 24))
-                        delta['seconds'] = seconds % 60
-                elif self.units().hours(signal):
-                    if not self._more_significant_selected('hours', signal):
-                        # seconds and hours
-                        delta['hours'] = int(hours)
-                        delta['seconds'] = seconds % (delta['hours'] * 60**2)
-                    else:
-                        # seconds and hours and days
-                        delta['days'] = int(days)
-                        delta['hours'] = int(hours % (delta['days'] * 24))
-                        delta['seconds'] = seconds % (delta['hours'] * 60**2)
-                elif self.units().days(signal):
-                    # seconds and days
-                    delta['days'] = int(days)
-                    delta['seconds'] = seconds % (delta['days'] * 60**2 * 24)
-            elif self.units().minutes(signal):
-                if not self._more_significant_selected('minutes', signal):
-                    # minutes only
-                    delta['minutes'] = minutes
-                elif self.units().hours(signal):
-                    if not self._more_significant_selected('hours', signal):
-                        # minutes and hours
-                        delta['hours'] = int(hours)
-                        delta['minutes'] = minutes % (delta['hours'] * 60)
-                    else:
-                        # minutes and hours and days
-                        delta['days'] = int(days)
-                        delta['hours'] = int(hours % (delta['days'] * 24))
-                        delta['minutes'] = minutes % (delta['hours'] * 60)
-                elif self.units().days(signal):
-                    # minutes and days
-                    delta['days'] = int(days)
-                    delta['minutes'] = minutes % (delta['days'] * 60 * 24)
-            elif self.units().hours(signal):
-                if not self._more_significant_selected('hours', signal):
-                    # hours only
-                    delta['hours'] = hours
-                else:
-                    # hours and days
-                    delta['days'] = int(days)
-                    delta['hours'] = hours % (delta['days'] * 24)
-            elif self.units().days(signal):
-                # days only
-                delta['days'] = days
-        return delta
+        return seconds
+
+    def _format_seconds_diff(self, seconds, signal):
+        """ Returns the number of seconds in terms of `units` using `signal`"""
+        days_enabled = self.units().days(signal)
+        hours_enabled = self.units().hours(signal)
+        mins_enabled = self.units().minutes(signal)
+        secs_enabled = self.units().seconds(signal)
+        least_significant = "seconds"
+        least_significant_mult = 1
+
+        if not any([days_enabled, hours_enabled, mins_enabled, secs_enabled]):
+            # Treat nothing enabled as all enabled
+            days_enabled = hours_enabled = mins_enabled = secs_enabled = True
+
+        output = {}
+
+        # Go through and remove the most significant values first. Stick the
+        # remainder on the least significant enabled value
+        if days_enabled:
+            least_significant = "days"
+            least_significant_mult = 60 * 60 * 24
+            output["days"] = days = math.floor(seconds / 60 / 60 / 24)
+            seconds -= days * 60 * 60 * 24
+
+        if hours_enabled:
+            least_significant = "hours"
+            least_significant_mult = 60 * 60
+            output["hours"] = hours = math.floor(seconds / 60 / 60)
+            seconds -= hours * 60 * 60
+
+        if mins_enabled:
+            least_significant = "minutes"
+            least_significant_mult = 60
+            output["minutes"] = mins = math.floor(seconds / 60)
+            seconds -= mins * 60
+
+        if secs_enabled:
+            least_significant = "seconds"
+            least_significant_mult = 1
+            output["seconds"] = seconds
+            seconds = 0
+
+        output[least_significant] += seconds / least_significant_mult
+
+        return output
 
     def _load_timestamp(self, timestamp, truncate=False):
         """ Returns a datetime object from an ISO 8601 string."""
