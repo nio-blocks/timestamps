@@ -117,24 +117,17 @@ class ElapsedTime(EnrichSignals, Block):
             # some units selected
             delta = {}
             if self.units().seconds(signal):
-                more_significant_selected = \
-                    self.units().days(signal) or \
-                    self.units().hours(signal) or \
-                    self.units().minutes(signal)
-                if not more_significant_selected:
+                if not self._more_significant_selected('seconds', signal):
                     # seconds only
                     delta['seconds'] = seconds
                 elif self.units().minutes(signal):
-                    more_significant_selected = \
-                        self.units().days(signal) or \
-                        self.units().hours(signal)
-                    if not more_significant_selected:
+                    if not self._more_significant_selected('minutes', signal):
                         # seconds and minutes
                         delta['minutes'] = int(minutes)
                         delta['seconds'] = seconds % (delta['minutes'] * 60)
                     elif self.units().hours(signal):
-                        more_significant_selected = self.units().days(signal)
-                        if not more_significant_selected:
+                        if not self._more_significant_selected(
+                                'hours', signal):
                             # seconds and minutes and hours
                             delta['hours'] = int(hours)
                             delta['minutes'] = \
@@ -150,8 +143,7 @@ class ElapsedTime(EnrichSignals, Block):
                         delta['minutes'] = int(minutes % (60 * 24))
                         delta['seconds'] = seconds % 60
                 elif self.units().hours(signal):
-                    more_significant_selected = self.units().days(signal)
-                    if not more_significant_selected:
+                    if not self._more_significant_selected('hours', signal):
                         # seconds and hours
                         delta['hours'] = int(hours)
                         delta['seconds'] = seconds % (delta['hours'] * 60**2)
@@ -163,17 +155,13 @@ class ElapsedTime(EnrichSignals, Block):
                 elif self.units().days(signal):
                     # seconds and days
                     delta['days'] = int(days)
-                    delta['seconds'] = seconds % (delta['days'] * 60**2 *24)
+                    delta['seconds'] = seconds % (delta['days'] * 60**2 * 24)
             elif self.units().minutes(signal):
-                more_significant_selected = \
-                    self.units().days(signal) or \
-                    self.units().hours(signal)
-                if not more_significant_selected:
+                if not self._more_significant_selected('minutes', signal):
                     # minutes only
                     delta['minutes'] = minutes
                 elif self.units().hours(signal):
-                    more_significant_selected = self.units().days(signal)
-                    if not more_significant_selected:
+                    if not self._more_significant_selected('hours', signal):
                         # minutes and hours
                         delta['hours'] = int(hours)
                         delta['minutes'] = minutes % (delta['hours'] * 60)
@@ -185,10 +173,9 @@ class ElapsedTime(EnrichSignals, Block):
                 elif self.units().days(signal):
                     # minutes and days
                     delta['days'] = int(days)
-                    delta['minutes'] = minutes % (delta['days'] * 60 *24)
+                    delta['minutes'] = minutes % (delta['days'] * 60 * 24)
             elif self.units().hours(signal):
-                more_significant_selected = self.units().days(signal)
-                if not more_significant_selected:
+                if not self._more_significant_selected('hours', signal):
                     # hours only
                     delta['hours'] = hours
                 else:
@@ -221,3 +208,18 @@ class ElapsedTime(EnrichSignals, Block):
         if time.tzinfo is None:  # if UTC the datetime will be offset-naive
             time = time.replace(tzinfo=timezone.utc)
         return time
+
+    def _more_significant_selected(self, item, signal):
+        """ Use a signal to evaluate if a unit more significant than item has
+            been selected.
+        """
+        units = ['seconds', 'minutes', 'hours', 'days']
+        # get index to item in units
+        for i, unit in enumerate(units):
+            if unit == item:
+                break
+        # check more significant units and return True if selected
+        for r in range(len(units) - (i + 1)):
+            if getattr(self.units(), units[r + (i + 1)])(signal):
+                return True
+        return False
