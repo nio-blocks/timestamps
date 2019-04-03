@@ -219,7 +219,8 @@ class ElapsedTime(EnrichSignals, Block):
             if unit == item:
                 break
         # check more significant units and return True if selected
-        for r in range(len(units) - (i + 1)):
-            if getattr(self.units(), units[r + (i + 1)])(signal):
+        i += 1
+        for r in range(len(units) - i):
+            if getattr(self.units(), units[r + i])(signal):
                 return True
         return False
