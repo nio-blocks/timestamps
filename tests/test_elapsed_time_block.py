@@ -6,6 +6,20 @@ from nio.testing.block_test_case import NIOBlockTestCase
 from ..elapsed_time_block import ElapsedTime
 
 
+class RoundedSig(Signal):
+
+    def to_dict(self):
+        my_dict = super().to_dict()
+        for key, item in my_dict.items():
+            if not isinstance(item, dict):
+                continue
+            for attr, value in item.items():
+                if isinstance(value, float):
+                    my_dict[key][attr] = round(value, 6)
+        return my_dict
+
+
+@patch('nio.block.mixins.enrich.enrich_signals.Signal', side_effect=RoundedSig)
 class TestElapsedTime(NIOBlockTestCase):
 
     maxDiff = None
@@ -23,7 +37,7 @@ class TestElapsedTime(NIOBlockTestCase):
     total_hours = total_minutes / 60
     total_days = total_hours / 24
 
-    def test_default_config(self):
+    def test_default_config(self, Signal):
         """ Two timestamps in an incoming signal are compared."""
         blk = ElapsedTime()
         config = {
@@ -53,7 +67,7 @@ class TestElapsedTime(NIOBlockTestCase):
             }),
         ])
 
-    def test_advanced_configuration(self):
+    def test_advanced_configuration(self, Signal):
         """ Unit selection, output attribute, and enrichment options."""
         blk = ElapsedTime()
         config = {
@@ -295,7 +309,7 @@ class TestElapsedTime(NIOBlockTestCase):
             }),
         ])
 
-    def test_optional_milliseconds(self):
+    def test_optional_milliseconds(self, Signal):
         """ Milliseconds in incoming timestamps can optionally be truncated."""
         blk = ElapsedTime()
         config = {
