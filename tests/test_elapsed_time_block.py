@@ -6,6 +6,20 @@ from nio.testing.block_test_case import NIOBlockTestCase
 from ..elapsed_time_block import ElapsedTime
 
 
+class RoundedSig(Signal):
+
+    def to_dict(self):
+        my_dict = super().to_dict()
+        for key, item in my_dict.items():
+            if not isinstance(item, dict):
+                continue
+            for attr, value in item.items():
+                if isinstance(value, float):
+                    my_dict[key][attr] = round(value, 6)
+        return my_dict
+
+
+@patch('nio.block.mixins.enrich.enrich_signals.Signal', side_effect=RoundedSig)
 class TestElapsedTime(NIOBlockTestCase):
 
     maxDiff = None
@@ -23,7 +37,7 @@ class TestElapsedTime(NIOBlockTestCase):
     total_hours = total_minutes / 60
     total_days = total_hours / 24
 
-    def test_default_config(self):
+    def test_default_config(self, Signal):
         """ Two timestamps in an incoming signal are compared."""
         blk = ElapsedTime()
         config = {
@@ -48,15 +62,12 @@ class TestElapsedTime(NIOBlockTestCase):
                 'timestamp_a': self.timestamp_a,
                 'timestamp_b': self.timestamp_b,
                 'timedelta': {
-                    'days': self.total_days,
-                    'hours': self.total_hours,
-                    'minutes': self.total_minutes,
                     'seconds': self.total_seconds,
                 },
             }),
         ])
 
-    def test_advanced_configuration(self):
+    def test_advanced_configuration(self, Signal):
         """ Unit selection, output attribute, and enrichment options."""
         blk = ElapsedTime()
         config = {
@@ -298,7 +309,7 @@ class TestElapsedTime(NIOBlockTestCase):
             }),
         ])
 
-    def test_optional_milliseconds(self):
+    def test_optional_milliseconds(self, Signal):
         """ Milliseconds in incoming timestamps can optionally be truncated."""
         blk = ElapsedTime()
         config = {
@@ -339,3 +350,29 @@ class TestElapsedTime(NIOBlockTestCase):
         # check that seconds was cast to int
         seconds = self.last_notified[DEFAULT_TERMINAL][0].timedelta['seconds']
         self.assertTrue(isinstance(seconds, int))
+
+    def test_nothing_checked(self, Signal):
+        """ Empty dict out when no values are checked """
+        blk = ElapsedTime()
+        config = {
+            'units': {
+                'days': False,
+                'hours': False,
+                'minutes': False,
+                'seconds': False,
+            },
+            'timestamp_a': '1984-05-03T00:00:00.999Z',
+            'timestamp_b': '1984-05-03T00:00:01.001Z',
+        }
+        self.configure_block(blk, config)
+
+        # process a list of signals
+        blk.start()
+        blk.process_signals([Signal()])
+        blk.stop()
+
+        self.assert_last_signal_list_notified([
+            Signal({
+                'timedelta': {},
+            }),
+        ])
