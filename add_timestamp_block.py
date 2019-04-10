@@ -48,18 +48,48 @@ class AddTimestamp(EnrichSignals, Block):
         self.notify_signals(output_signals)
 
     def _get_current_time(self):
-        if self.milliseconds():
-            timespec = 'milliseconds'  # HH:MM:SS.sss time format
-        else:
-            timespec = 'seconds'  # HH:MM:SS
         if self.utc():
-            current_time = str(datetime.utcnow().isoformat(timespec=timespec))
+            now = datetime.utcnow()
+            if not self.milliseconds():
+                # truncate fractional seconds
+                now = datetime(
+                    year=now.year,
+                    month=now.month,
+                    day=now.day,
+                    hour=now.hour,
+                    minute=now.minute,
+                    second=now.second,
+                    microsecond=0)
+            current_time = str(now.isoformat())
+            if self.milliseconds():
+                # truncate microseconds to milliseconds
+                _base, _microseconds = current_time.split('.')
+                _milliseconds = _microseconds[:3]
+                current_time = '.'.join([_base, _milliseconds])
             # Add timezone
             current_time += 'Z'
         else:
-            current_time_tz = get_localzone().localize(datetime.now())
-            current_time = str(current_time_tz.isoformat(timespec=timespec))
+            now = datetime.now()
+            if not self.milliseconds():
+                # truncate fractional seconds
+                now = datetime(
+                    year=now.year,
+                    month=now.month,
+                    day=now.day,
+                    hour=now.hour,
+                    minute=now.minute,
+                    second=now.second,
+                    microsecond=0)
+            current_time_with_tz = get_localzone().localize(now)
+            current_time = str(current_time_with_tz.isoformat())
             # TODO: Add options for TZ format (±HHMM, ±HH:MM, ±HH)
             # remove colon from TZ info (±HHMM format)
             current_time = ''.join(current_time.rsplit(':', 1))
+            if self.milliseconds():
+                # truncate microseconds to milliseconds
+                _base, _suffix = current_time.split('.')
+                _microseconds = _suffix[:6]
+                _offset = _suffix[-5:]
+                _milliseconds = _microseconds[:3]
+                current_time = '.'.join([_base, _milliseconds + _offset])
         return current_time
