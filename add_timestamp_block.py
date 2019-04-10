@@ -82,14 +82,14 @@ class AddTimestamp(EnrichSignals, Block):
                     microsecond=0)
             current_time_with_tz = get_localzone().localize(now)
             current_time = str(current_time_with_tz.isoformat())
-            # TODO: Add options for TZ format (±HHMM, ±HH:MM, ±HH)
-            # remove colon from TZ info (±HHMM format)
-            current_time = ''.join(current_time.rsplit(':', 1))
             if self.milliseconds():
                 # truncate microseconds to milliseconds
                 _base, _suffix = current_time.split('.')
                 _microseconds = _suffix[:6]
-                _offset = _suffix[-5:]
+                _offset = _suffix[-6:]
                 _milliseconds = _microseconds[:3]
                 current_time = '.'.join([_base, _milliseconds + _offset])
+            # TODO: Add options for TZ format (±HHMM, ±HH:MM, ±HH)
+            # remove colon from TZ info (±HHMM format)
+            current_time = ''.join(current_time.rsplit(':', maxsplit=1))
         return current_time
