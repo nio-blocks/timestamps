@@ -61,9 +61,7 @@ class TestElapsedTime(NIOBlockTestCase):
             Signal({
                 'timestamp_a': self.timestamp_a,
                 'timestamp_b': self.timestamp_b,
-                'timedelta': {
-                    'seconds': self.total_seconds,
-                },
+                'seconds': self.total_seconds,
             }),
         ])
 
@@ -73,8 +71,8 @@ class TestElapsedTime(NIOBlockTestCase):
         config = {
             'enrich': {
                 'exclude_existing': True,
+                'enrich_field': '{{ $output }}',
             },
-            'output_attr': '{{ $output }}',
             'timestamp_a': self.timestamp_a,
             'timestamp_b': self.timestamp_b,
             'units': {
@@ -339,16 +337,14 @@ class TestElapsedTime(NIOBlockTestCase):
         self.assert_last_signal_list_notified([
             Signal({
                 'ms': False,
-                'timedelta': {
-                    'days': 0,
-                    'hours': 0,
-                    'minutes': 0,
-                    'seconds': 1,
-                },
+                'days': 0,
+                'hours': 0,
+                'minutes': 0,
+                'seconds': 1,
             }),
         ])
         # check that seconds was cast to int
-        seconds = self.last_notified[DEFAULT_TERMINAL][0].timedelta['seconds']
+        seconds = self.last_notified[DEFAULT_TERMINAL][0].seconds
         self.assertTrue(isinstance(seconds, int))
 
     def test_nothing_checked(self, Signal):
@@ -368,11 +364,15 @@ class TestElapsedTime(NIOBlockTestCase):
 
         # process a list of signals
         blk.start()
-        blk.process_signals([Signal()])
+        blk.process_signals([
+            Signal({
+                'pi': 3.142,
+            }),
+        ])
         blk.stop()
 
         self.assert_last_signal_list_notified([
             Signal({
-                'timedelta': {},
+                'pi': 3.142,
             }),
         ])

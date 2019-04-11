@@ -25,11 +25,6 @@ class ElapsedTime(EnrichSignals, Block):
     timestamp_a = StringProperty(title='Timestamp A', order=0)
     timestamp_b = StringProperty(title='Timestamp B', order=1)
 
-    output_attr = StringProperty(
-        title='Outgoing Signal Attribute',
-        default='timedelta',
-        order=0,
-        advanced=True)
     units = ObjectProperty(
         Units,
         title='Units',
@@ -52,10 +47,7 @@ class ElapsedTime(EnrichSignals, Block):
 
     def process_signal(self, signal):
         seconds = self._get_timedelta(signal)
-        delta = self._format_seconds_diff(seconds, signal)
-        signal_dict = {
-            self.output_attr(signal): delta,
-        }
+        signal_dict = self._format_seconds_diff(seconds, signal)
         output_signal = self.get_output_signal(signal_dict, signal)
         return output_signal
 
