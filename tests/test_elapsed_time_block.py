@@ -188,8 +188,7 @@ class TestElapsedTime(NIOBlockTestCase):
                 'days': 1,
                 'hours': 12,
                 'minutes': 42,
-                # use modulo for consistent floating point error
-                'seconds': self.total_seconds % 60,  # 3.142
+                'seconds': 3.142,
             }),
             Signal({
                 'days': self.total_days,
@@ -322,5 +321,56 @@ class TestElapsedTime(NIOBlockTestCase):
         self.assert_last_signal_list_notified([
             Signal({
                 'pi': 3.142,
+            }),
+        ])
+
+    def test_negative_interval(self, Signal):
+        """ Defined behavior for negative intervals."""
+        blk = ElapsedTime()
+        config = {
+            'enrich': {
+                'exclude_existing': True,
+            },
+            'units': {
+                'days': '{{ $days }}',
+                'hours': '{{ $hours }}',
+                'minutes': '{{ $minutes }}',
+                'seconds': '{{ $seconds }}',
+            },
+            'timestamp_a': self.timestamp_b,
+            'timestamp_b': self.timestamp_a,
+        }
+        self.configure_block(blk, config)
+
+        # process a list of signals
+        blk.start()
+        blk.process_signals([
+            # the default case
+            Signal({
+                'days': False,
+                'hours': False,
+                'minutes': False,
+                'seconds': True,
+            }),
+            # all units
+            Signal({
+                'days': True,
+                'hours': True,
+                'minutes': True,
+                'seconds': True,
+            }),
+        ])
+        blk.stop()
+
+        # check output
+        self.assert_last_signal_list_notified([
+            Signal({
+                'seconds': self.total_seconds * -1,
+            }),
+            Signal({
+                'days': -1,
+                'hours': -12,
+                'minutes': -42,
+                'seconds': -3.142,
             }),
         ])

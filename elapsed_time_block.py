@@ -1,4 +1,3 @@
-import math
 from datetime import datetime, timezone
 from nio import Block
 from nio.block.mixins import EnrichSignals
@@ -86,19 +85,19 @@ class ElapsedTime(EnrichSignals, Block):
         if days_enabled:
             least_significant = "days"
             least_significant_mult = 60 * 60 * 24
-            output["days"] = days = math.floor(seconds / 60 / 60 / 24)
+            output["days"] = days = int(seconds / 60 / 60 / 24)
             seconds -= days * 60 * 60 * 24
 
         if hours_enabled:
             least_significant = "hours"
             least_significant_mult = 60 * 60
-            output["hours"] = hours = math.floor(seconds / 60 / 60)
+            output["hours"] = hours = int(seconds / 60 / 60)
             seconds -= hours * 60 * 60
 
         if mins_enabled:
             least_significant = "minutes"
             least_significant_mult = 60
-            output["minutes"] = mins = math.floor(seconds / 60)
+            output["minutes"] = mins = int(seconds / 60)
             seconds -= mins * 60
 
         if secs_enabled:
