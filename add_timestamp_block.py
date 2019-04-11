@@ -97,8 +97,7 @@ class AddTimestamp(EnrichSignals, Block):
     def _truncate_microseconds(timestamp):
         """ Remove microseconds from string `timestamp`"""
         base, suffix = timestamp.split('.')
-        microseconds = suffix[:6]
-        offset = suffix[6:]
+        microseconds, offset = suffix[:6], suffix[6:]
         milliseconds = microseconds[:3]
         suffix = milliseconds + offset
         timestamp = '.'.join([base, suffix])
