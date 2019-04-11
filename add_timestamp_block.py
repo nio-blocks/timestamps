@@ -55,9 +55,9 @@ class AddTimestamp(EnrichSignals, Block):
             now = datetime.utcnow()
             if not self.milliseconds():
                 now = self._truncate_fractional_seconds(now)
-                current_time = str(now.isoformat()) + 'Z'
+                current_time = now.isoformat() + 'Z'
             else:
-                current_time = str(now.isoformat())
+                current_time = now.isoformat()
                 current_time = self._truncate_microseconds(current_time) + 'Z'
             return current_time
         # get local timestamp
