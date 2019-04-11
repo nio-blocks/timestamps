@@ -1,5 +1,4 @@
 from datetime import timedelta
-from unittest import skip
 from unittest.mock import patch
 from nio.block.terminals import DEFAULT_TERMINAL
 from nio.signal.base import Signal
@@ -375,32 +374,5 @@ class TestElapsedTime(NIOBlockTestCase):
         self.assert_last_signal_list_notified([
             Signal({
                 'timedelta': {},
-            }),
-        ])
-
-    @skip('Alternate timezone formats are not currently supported.')
-    def test_alternate_offset_formats(self, Signal):
-        """ ISO allows for three formats for timezone info."""
-        blk = ElapsedTime()
-        config = {
-            'timestamp_a': '1984-05-03T05:45:00.00+05:45',
-            'timestamp_b': '1984-05-04T11:42:03.142-01',
-        }
-        self.configure_block(blk, config)
-
-        # process a list of signals
-        blk.start()
-        blk.process_signals([Signal()])
-        blk.stop()
-
-        # check output
-        self.assert_last_signal_list_notified([
-            Signal({
-                'timedelta': {
-                    'days': 0,
-                    'hours': 0,
-                    'minutes': 0,
-                    'seconds': 1,
-                },
             }),
         ])
