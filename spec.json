@@ -3,18 +3,18 @@
     "categories": [
       "Signal Modifier"
     ],
-    "from_readme": "README.md",
+    "from_readme": "docs/add_timestamp.md",
     "from_python": "add_timestamp_block.AddTimestamp",
     "description": "Add an ISO-8601 timestamp to a signal.",
     "tags": "datetime date time timer clock"
   },
-  "nio/ElapsedTimestamp": {
+  "nio/ElapsedTime": {
     "categories": [
       "Signal Modifier"
     ],
-    "from_readme": "docs/README.md",
-    "from_python": "elapsed_timestamp_block.ElapsedTimestamp",
-    "description": "Get an ISO-8601 representation of time elapsed since a given timestamp.",
-    "tags": "datetime date time timer clock elapsed duration stopwatch"
+    "from_readme": "docs/elapsed_time.md",
+    "from_python": "elapsed_time_block.ElapsedTime",
+    "description": "Calculate the delta between two ISO-8601 timestamps.",
+    "tags": "datetime date time timer clock elapsed duration stopwatch timedelta"
   }
 }

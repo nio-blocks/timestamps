@@ -1,12 +1,12 @@
 {
   "nio/AddTimestamp": {
     "language": "Python",
-    "url": "git://github.com/tyoungNIO/timestamps.git",
+    "url": "git://github.com/nio-blocks/timestamps.git",
     "from_python": "add_timestamp_block.AddTimestamp"
   },
   "nio/ElapsedTimestamp": {
     "language": "Python",
-    "url": "git://github.com/tyoungNIO/timestamps.git",
-    "from_python": "elapsed_timestamp_block.ElapsedTimestamp"
+    "url": "git://github.com/nio-blocks/timestamps.git",
+    "from_python": "elapsed_time_block.ElapsedTime"
   }
 }
