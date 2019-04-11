@@ -174,8 +174,7 @@ The [SignalEnrichment](https://docs.n.io/blocks/block-mixins/enrich-signals.html
 Timestamp A: {{ $past }}
 Timestamp B: {{ $present }}
 Signal Enrichment:
-  Exclude Existing? True
-  Results Field: {{ $output_attr }}
+  Results Field: timedelta
 ```
 
 Process a list of signals:
@@ -183,7 +182,6 @@ Process a list of signals:
 ```
 [
   {
-    "output_attr": "timedelta",
     "past": "1984-05-03T05:45:00+0545",
     "present": "1984-05-04T12:42:03.142Z"
   }
@@ -195,6 +193,8 @@ And the configured **Units** will be inside **Results Field**:
 ```
 [
   {
+    "past": "1984-05-03T05:45:00+0545",
+    "present": "1984-05-04T12:42:03.142Z",
     "timedelta": {
       "seconds": 132123.142
     }
