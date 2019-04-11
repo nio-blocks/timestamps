@@ -103,7 +103,7 @@ class ElapsedTime(EnrichSignals, Block):
         if secs_enabled:
             least_significant = "seconds"
             least_significant_mult = 1
-            output["seconds"] = seconds
+            output["seconds"] = round(seconds, 3)
             seconds = 0
 
         output[least_significant] += seconds / least_significant_mult
