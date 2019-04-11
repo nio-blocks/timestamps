@@ -11,7 +11,6 @@ Properties
 
 Advanced Properties
 ---
-- **Outgoing Signal Attribute**: Attribute of outgoing signals to contain the computed time delta, default `timedelta`
 - **Units** (advanced): Options for representing the total time delta.
   - *Days*: default `False`
   - *Hours*: default `False`
@@ -51,12 +50,10 @@ Because each of **Units** is de-selected by default, in this example the elapsed
   {
     "past": "1984-05-03T05:45:00+0545",
     "present": "1984-05-04T12:42:03.142Z",
-    "timedelta": {
-      "days": 1.529...,
-      "hours": 36.700...,
-      "minutes": 2202.052...,
-      "seconds": 132123.142
-    }
+    "days": 1.529...,
+    "hours": 36.700...,
+    "minutes": 2202.052...,
+    "seconds": 132123.142
   }
 ]
 ```
@@ -98,10 +95,8 @@ Less than one full hour has elapsed from **Timestamp A** to **Timestamp B** so `
   {
     "past": "1984-05-03T05:45:00+0545",
     "present": "1984-05-04T12:42:03.142Z",
-    "timedelta": {
-      "hours": 36,
-      "minutes": 42.052...,
-    }
+    "hours": 36,
+    "minutes": 42.052...,
   }
 ]
 ```
@@ -116,12 +111,10 @@ Similarly, with all of the available **Units** selected, each will be truncated 
   {
     "past": "1984-05-03T05:45:00+0545",
     "present": "1984-05-04T12:42:03.142Z",
-    "timedelta": {
-      "days": 1,
-      "hours": 12,
-      "minutes": 42,
-      "seconds": 3.142
-    }
+    "days": 1,
+    "hours": 12,
+    "minutes": 42,
+    "seconds": 3.142
   }
 ]
 ```
@@ -136,9 +129,7 @@ If a single item from **Units** is selected, for example *Hours*, the entire tim
   {
     "past": "1984-05-03T00:00:00.000Z",
     "present": "1984-05-03T00:42:03.142Z",
-    "timedelta": {
-      "hours": 36.700...
-    }
+    "hours": 36.700...
   }
 ]
 ```
@@ -166,11 +157,46 @@ All values in the outgoing signal are integers:
 ```
 [
   {
+    "days": 0,
+    "hours": 0,
+    "minutes": 0,
+    "seconds": 1
+  }
+]
+```
+
+Example 4
+---
+
+The [SignalEnrichment](https://docs.n.io/blocks/block-mixins/enrich-signals.html)[SignalEnrichment](https://docs.n.io/blocks/block-mixins/enrich-signals.html) mixin can be leveraged to nest the time delta into a single, top-level attribute in the outgoing signal:
+
+```
+Timestamp A: {{ $past }}
+Timestamp B: {{ $present }}
+Signal Enrichment:
+  Exclude Existing? True
+  Results Field: {{ $output_attr }}
+```
+
+Process a list of signals:
+
+```
+[
+  {
+    "output_attr": "timedelta",
+    "past": "1984-05-03T05:45:00+0545",
+    "present": "1984-05-04T12:42:03.142Z"
+  }
+]
+```
+
+And the configured **Units** will be inside **Results Field**:
+
+```
+[
+  {
     "timedelta": {
-      "days": 0,
-      "hours": 0,
-      "minutes": 0,
-      "seconds": 1
+      "seconds": 132123.142
     }
   }
 ]
