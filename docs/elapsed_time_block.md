@@ -168,7 +168,7 @@ All values in the outgoing signal are integers:
 Example 4
 ---
 
-The [SignalEnrichment](https://docs.n.io/blocks/block-mixins/enrich-signals.html)[SignalEnrichment](https://docs.n.io/blocks/block-mixins/enrich-signals.html) mixin can be leveraged to nest the time delta into a single, top-level attribute in the outgoing signal:
+The [SignalEnrichment](https://docs.n.io/blocks/block-mixins/enrich-signals.html) mixin can be leveraged to nest the time delta into a single, top-level attribute in the outgoing signal:
 
 ```
 Timestamp A: {{ $past }}
