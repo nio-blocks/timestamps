@@ -48,7 +48,9 @@ class AddTimestamp(EnrichSignals, Block):
         self.notify_signals(output_signals)
 
     def _get_current_time(self):
-        """ Return an ISO-formatted string."""
+        """ Return an ISO-formatted string. Helper `_truncate_` functions
+            are to support Python < 3.6, after which `datetime.isoformat()`
+            takes a `timespec` arg."""
         if self.utc():
             now = datetime.utcnow()
             if not self.milliseconds():
