@@ -48,48 +48,56 @@ class AddTimestamp(EnrichSignals, Block):
         self.notify_signals(output_signals)
 
     def _get_current_time(self):
+        """ Return an ISO-formatted string."""
         if self.utc():
             now = datetime.utcnow()
             if not self.milliseconds():
-                # truncate fractional seconds
-                now = datetime(
-                    year=now.year,
-                    month=now.month,
-                    day=now.day,
-                    hour=now.hour,
-                    minute=now.minute,
-                    second=now.second,
-                    microsecond=0)
-            current_time = str(now.isoformat())
-            if self.milliseconds():
-                # truncate microseconds to milliseconds
-                _base, _microseconds = current_time.split('.')
-                _milliseconds = _microseconds[:3]
-                current_time = '.'.join([_base, _milliseconds])
-            # Add timezone
-            current_time += 'Z'
+                now = self._truncate_fractional_seconds(now)
+                current_time = str(now.isoformat()) + 'Z'
+            else:
+                current_time = str(now.isoformat())
+                current_time = self._truncate_microseconds(current_time) + 'Z'
+            return current_time
+        # get local timestamp
+        now = datetime.now()
+        if not self.milliseconds():
+            now = self._truncate_fractional_seconds(now)
+            current_time = str(self._localize_time(now))
         else:
-            now = datetime.now()
-            if not self.milliseconds():
-                # truncate fractional seconds
-                now = datetime(
-                    year=now.year,
-                    month=now.month,
-                    day=now.day,
-                    hour=now.hour,
-                    minute=now.minute,
-                    second=now.second,
-                    microsecond=0)
-            current_time_with_tz = get_localzone().localize(now)
-            current_time = str(current_time_with_tz.isoformat())
-            if self.milliseconds():
-                # truncate microseconds to milliseconds
-                _base, _suffix = current_time.split('.')
-                _microseconds = _suffix[:6]
-                _offset = _suffix[-6:]
-                _milliseconds = _microseconds[:3]
-                current_time = '.'.join([_base, _milliseconds + _offset])
-            # TODO: Add options for TZ format (±HHMM, ±HH:MM, ±HH)
-            # remove colon from TZ info (±HHMM format)
-            current_time = ''.join(current_time.rsplit(':', maxsplit=1))
+            current_time = str(self._localize_time(now))
+            current_time = self._truncate_microseconds(current_time)
+        # remove colon from TZ info (±HHMM format)
+        # TODO: Add options for formats ±HH:MM, ±HH
+        current_time = ''.join(current_time.rsplit(':', maxsplit=1))
         return current_time
+
+    @staticmethod
+    def _localize_time(now):
+        """ Return datetime `now` with local timezone."""
+        current_time_with_tz = get_localzone().localize(now)
+        current_time = current_time_with_tz.isoformat()
+        return current_time
+
+    @staticmethod
+    def _truncate_fractional_seconds(now):
+        """ Return a datetime equal to `now` with `microsecond=0`"""
+        now = datetime(
+            year=now.year,
+            month=now.month,
+            day=now.day,
+            hour=now.hour,
+            minute=now.minute,
+            second=now.second,
+            microsecond=0)
+        return now
+
+    @staticmethod
+    def _truncate_microseconds(timestamp):
+        """ Remove microseconds from string `timestamp`"""
+        base, suffix = timestamp.split('.')
+        microseconds = suffix[:6]
+        offset = suffix[6:]
+        milliseconds = microseconds[:3]
+        suffix = milliseconds + offset
+        timestamp = '.'.join([base, suffix])
+        return timestamp
