@@ -238,7 +238,8 @@ class TestElapsedTime(NIOBlockTestCase):
             Signal({
                 'days': int(self.total_days),
                 'hours': int(self.total_hours % (int(self.total_days) * 24)),
-                'seconds': self.total_seconds % (int(self.total_hours) * 60**2),
+                'seconds': \
+                    self.total_seconds % (int(self.total_hours) * 60**2),
             }),
             Signal({
                 'days': int(self.total_days),
