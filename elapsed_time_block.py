@@ -133,19 +133,3 @@ class ElapsedTime(EnrichSignals, Block):
         if time.tzinfo is None:  # if UTC the datetime will be offset-naive
             time = time.replace(tzinfo=timezone.utc)
         return time
-
-    def _more_significant_selected(self, item, signal):
-        """ Use a signal to evaluate if a unit more significant than item has
-            been selected.
-        """
-        units = ['seconds', 'minutes', 'hours', 'days']
-        # get index to item in units
-        for i, unit in enumerate(units):
-            if unit == item:
-                break
-        # check more significant units and return True if selected
-        i += 1
-        for r in range(len(units) - i):
-            if getattr(self.units(), units[r + i])(signal):
-                return True
-        return False
